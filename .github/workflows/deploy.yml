@@ -16,14 +16,14 @@ jobs:
       - run: npm run build
       - name: Create .nojekyll file
         run: |
-          if [ -d "build" ]; then
-            touch build/.nojekyll
+          if [ -d "public" ]; then
+            touch public/.nojekyll
           else
-            echo "Build directory not found"
+            echo "Public directory not found"
             exit 1
           fi
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./public
