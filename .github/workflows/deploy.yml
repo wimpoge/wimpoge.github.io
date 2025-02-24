@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ['main']
-    
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,14 +14,10 @@ jobs:
           node-version: '18'
       - run: npm ci
       - run: npm run build
+      - name: Ensure public directory exists
+        run: mkdir -p public
       - name: Create .nojekyll file
-        run: |
-          if [ -d "public" ]; then
-            touch public/.nojekyll
-          else
-            echo "Public directory not found"
-            exit 1
-          fi
+        run: touch public/.nojekyll
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
