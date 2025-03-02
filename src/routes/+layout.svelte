@@ -86,9 +86,10 @@
           modern technologies.
         </p>
         <div class="flex flex-col sm:flex-row gap-4">
-          <button
+            <button
             class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
-          >
+            on:click={() => document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' })}
+            >
             View Projects
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -97,28 +98,16 @@
               fill="currentColor"
             >
               <path
-                fillRule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
+              fillRule="evenodd"
+              d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+              clipRule="evenodd"
               />
             </svg>
-          </button>
+            </button>
           <button
             class="w-full sm:w-auto px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center group"
           >
             Download CV
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 ml-2 group-hover:translate-y-1 transition-transform duration-300"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L10 12.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
           </button>
         </div>
         <div class="flex space-x-4 mt-8">
@@ -173,7 +162,7 @@
         <div class="w-full md:w-1/2 mt-8 md:mt-0">
           <h3 class="text-2xl font-semibold mb-4">Who I Am</h3>
           <p class="text-gray-600 mb-6 leading-relaxed">
-            I'm a passionate front-end developer with 2 years of experience
+            I'm a passionate front-end developer with >2 years of experience
             creating elegant, responsive web applications. I specialize in
             translating design concepts into clean, efficient code that delivers
             exceptional user experiences.
@@ -198,7 +187,6 @@
               >
               <span>Depok, Indonesia</span>
             </div>
-          
           </div>
         </div>
       </div>
@@ -418,22 +406,25 @@
           <div
             class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]"
           >
-            <h3 class="text-xl font-semibold mb-2">
-              Front-End Developer
-            </h3>
+            <h3 class="text-xl font-semibold mb-2">Front-End Developer</h3>
             <p class="text-indigo-600 mb-4">PT. Berca Hardayaperkasa</p>
             <p class="text-gray-600 mb-4">
-              Joined a company engaged in information technology and IT service provision. This company is also known as a leading information technology consultant in Indonesia.
+              Joined a company engaged in information technology and IT service
+              provision. This company is also known as a leading information
+              technology consultant in Indonesia.
             </p>
             <ul class="list-disc list-inside text-gray-600 space-y-1">
               <li>
-                Implement various AI models into the front end, either through a REST API or directly from the official source.
+                Implement various AI models into the front end, either through a
+                REST API or directly from the official source.
               </li>
               <li>
-                Develop UI using various frameworks such as Next.js and SvelteKit.
+                Develop UI using various frameworks such as Next.js and
+                SvelteKit.
               </li>
               <li>
-                Developing complex applications that integrate AI technologies to enhance functionality and user experience.
+                Developing complex applications that integrate AI technologies
+                to enhance functionality and user experience.
               </li>
             </ul>
           </div>
@@ -457,18 +448,21 @@
           <div
             class="mt-8 md:mt-6 md:ml-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)] md:relative md:left-1/2"
           >
-            <h3 class="text-xl font-semibold mb-2">
-               Front-End Developer
-            </h3>
-            <p class="text-indigo-600 mb-4">TechInnovate Inc.</p>
+            <h3 class="text-xl font-semibold mb-2">Front-End Developer</h3>
+            <p class="text-indigo-600 mb-4">PT. Semesta Arus Teknologi</p>
             <p class="text-gray-600 mb-4">
-              My first professional career as a front-end developer using SvelteKit.
+              My first professional career as a front-end developer using
+              SvelteKit.
             </p>
             <ul class="list-disc list-inside text-gray-600 space-y-1">
               <li>Developed projects for government agencies.</li>
               <li>
-                Implemented File Extraction feature to extract content from a file.              </li>
-              <li>Developed Tracking Gmaps Location feature based on Phone Number.</li>
+                Implemented File Extraction feature to extract content from a
+                file.
+              </li>
+              <li>
+                Developed Tracking Gmaps Location feature based on Phone Number.
+              </li>
               <li>Created Role Management for specified feature access.</li>
               <li>Implemented Export File pdf and excel features.</li>
               <li>Created Chart Diagram based on available data.</li>
@@ -704,7 +698,6 @@
                 ></div>
               </div>
             </div>
-            
           </div>
         </div>
       </div>
