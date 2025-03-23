@@ -8,45 +8,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      
-      - name: Debug - Show package.json
-        run: cat package.json
-      
       - name: Install dependencies
         run: npm install
-      
-      - name: Debug - List files before build
-        run: ls -la
-      
-      - name: build
+      - name: Build
         env:
           BASE_PATH: '/${{ github.event.repository.name }}'
         run: |
           npm run build
-      
-      - name: Debug - List files after build
-        run: |
-          echo "Root directory:"
-          ls -la
-          echo "Possible build directories:"
-          [ -d "build" ] && echo "build directory exists" && ls -la build || echo "No build directory"
-          [ -d "dist" ] && echo "dist directory exists" && ls -la dist || echo "No dist directory"
-          [ -d "public" ] && echo "public directory exists" && ls -la public || echo "No public directory"
-          [ -d "out" ] && echo "out directory exists" && ls -la out || echo "No out directory"
-          [ -d ".next" ] && echo ".next directory exists" && ls -la .next || echo "No .next directory"
-      
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # This will be dynamically determined after seeing debug output
-          path: 'build/'
-  
+          # With 'output: export' in next.config.js, the output goes to 'out/'
+          path: 'out/'
   deploy:
     needs: build_site
     runs-on: ubuntu-latest
