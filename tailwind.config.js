@@ -1,15 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./src/**/*.{html,js,svelte,ts}'],
-  theme: {
-    fontFamily: {
-      'inter': ['Inter', 'sans-serif'],
-      'josefin': ['Josefin Sans', 'sans-serif'],
-      'gowun': ['Gowun Batang', 'serif']
+module.exports = {
+    content: [
+      "./app/**/*.{js,ts,jsx,tsx,mdx}",
+      "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+      "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    ],
+    theme: {
+      extend: {},
     },
-    extend: {},
-  },
-  plugins: [
-    require('daisyui'),
-  ],
-}
+    plugins: [],
+  }
