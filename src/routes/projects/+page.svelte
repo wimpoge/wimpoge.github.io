@@ -1,32 +1,358 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Gowun+Batang:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap");
-@import url(https://fonts.googleapis.com/css2?family=Lato&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Open+Sans&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200);
-@import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css);
+<script lang="ts">
+  import { onMount } from "svelte";
+  import type { Project } from "../../lib/projects-types";
+  import {
+    allProjects,
+    getCategoryColorClasses,
+  } from "../../lib/projects-types";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  let categoryFilter = "";
+  let dateFilter = "";
+  let sortBy = "recent";
+  let currentPage = 1;
+  let filteredProjects: Project[] = [];
+  const projectsPerPage = 6;
 
-/* Your other CSS */
+  function applyFilters() {
+    let result = [...allProjects];
 
-:root {
-  --background-color: white;
-  --text-color: #000000;
-}
+    if (categoryFilter) {
+      result = result.filter((project) => project.category === categoryFilter);
+    }
 
-[data-theme="dark"] {
-  --background-color: #3d423a;
-  --text-color: #ffffff;
-}
+    if (dateFilter) {
+      result = result.filter(
+        (project) => project.completionYear === dateFilter
+      );
+    }
 
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
+    // Sorting
+    switch (sortBy) {
+      case "recent":
+        result.sort(
+          (a, b) =>
+            new Date(b.completionDate).getTime() -
+            new Date(a.completionDate).getTime()
+        );
+        break;
+      case "oldest":
+        result.sort(
+          (a, b) =>
+            new Date(a.completionDate).getTime() -
+            new Date(b.completionDate).getTime()
+        );
+        break;
+      case "a-z":
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "z-a":
+        result.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+    }
 
-*,
+    filteredProjects = result;
+    currentPage = 1;
+  }
+
+  $: {
+    applyFilters();
+  }
+
+  $: indexOfLastProject = currentPage * projectsPerPage;
+  $: indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  $: currentProjects = filteredProjects.slice(
+    indexOfFirstProject,
+    indexOfLastProject
+  );
+  $: totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+
+  function paginate(pageNumber: number) {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      currentPage = pageNumber;
+    }
+  }
+
+  $: pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+</script>
+
+<div id="webcrumbs">
+  <div class="bg-white p-4 sm:p-6 font-sans w-full mx-auto">
+    <div class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Projects</h1>
+      <p class="text-gray-600 text-sm sm:text-base">
+        Explore my latest work and innovations
+      </p>
+    </div>
+
+    <div class="mb-8 sm:mb-10">
+      <div
+        class="flex flex-col gap-4 bg-gray-100 p-4 rounded-lg shadow-sm relative"
+      >
+        <div class="grid md:grid-cols-3 gap-4 md:gap-6">
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Filter by Category
+            </label>
+            <div class="relative z-30">
+              <select
+                class="px-4 w-full bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none hover:border-indigo-300 transition-colors"
+                bind:value={categoryFilter}
+              >
+                <option value="">All Categories</option>
+                <option value="web">Web Development</option>
+                <option value="mobile">Mobile App</option>
+                <option value="ui">UI/UX Design</option>
+                <option value="blockchain">Blockchain</option>
+                <option value="ai">AI/ML</option>
+                <option value="cloud">Cloud Computing</option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Completion Date</label
+            >
+            <div class="relative z-20">
+              <select
+                class="px-4 w-full bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none hover:border-indigo-300 transition-colors"
+                bind:value={dateFilter}
+              >
+                <option value="">All Dates</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Sort By</label
+            >
+            <div class="relative z-10">
+              <select
+                class="px-4 w-full bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none hover:border-indigo-300 transition-colors"
+                bind:value={sortBy}
+              >
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest First</option>
+                <option value="a-z">A-Z</option>
+                <option value="z-a">Z-A</option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+              >
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full flex md:justify-end">
+          <button
+            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md shadow-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+            on:click={applyFilters}
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8"
+    >
+      {#if currentProjects.length > 0}
+        {#each currentProjects as project}
+          <div
+            class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group"
+          >
+            <div class="h-48 sm:h-52 md:h-56 overflow-hidden relative">
+              <img
+                src={project.image}
+                alt={project.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            </div>
+            <div class="p-4 sm:p-5">
+              <span
+                class="inline-block px-3 py-1 text-xs sm:text-sm {getCategoryColorClasses(
+                  project.categoryColor
+                ).bg} {getCategoryColorClasses(project.categoryColor)
+                  .text} rounded-full mb-2 {getCategoryColorClasses(
+                  project.categoryColor
+                ).hoverBg} transition-colors"
+              >
+                {project.categoryLabel}
+              </span>
+              <h3
+                class="text-lg sm:text-xl font-semibold mb-2 group-hover:text-indigo-600 transition-colors"
+              >
+                {project.title}
+              </h3>
+              <p class="text-gray-600 text-sm sm:text-base mb-4">
+                {project.description}
+              </p>
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <span class="text-xs sm:text-sm text-gray-500"
+                  >Completed: {project.completionDate}</span
+                >
+                <a
+                  href={project.links}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md"
+                >
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <div class="col-span-3 text-center py-12">
+          <p class="text-gray-500 text-lg">
+            No projects match your filters. Try different criteria.
+          </p>
+        </div>
+      {/if}
+    </div>
+
+    {#if totalPages > 1}
+      <div
+        class="flex justify-center items-center mt-6 sm:mt-8 md:mt-10 pb-4 overflow-visible"
+      >
+        <nav
+          class="inline-flex flex-wrap rounded-md shadow-sm justify-center gap-1"
+          aria-label="Pagination"
+        >
+          <button
+            on:click={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            class="relative inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-l-md border {currentPage ===
+            1
+              ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 group cursor-pointer'}"
+          >
+            <span class="sr-only">Previous</span>
+            <svg
+              class="h-4 w-4 sm:h-5 sm:w-5 {currentPage !== 1
+                ? 'group-hover:text-indigo-600'
+                : ''} transition-colors"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+
+          {#each pageNumbers as number}
+            {@const showPageNumber =
+              number === 1 ||
+              number === totalPages ||
+              (number >= currentPage - 1 && number <= currentPage + 1)}
+
+            {#if showPageNumber}
+              <button
+                on:click={() => paginate(number)}
+                class="relative inline-flex items-center px-4  border {currentPage ===
+                number
+                  ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 hover:text-indigo-600'}"
+              >
+                {number}
+              </button>
+            {/if}
+          {/each}
+
+          <button
+            on:click={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            class="relative inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-r-md border {currentPage ===
+            totalPages
+              ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 group cursor-pointer'}"
+          >
+            <span class="sr-only">Next</span>
+            <svg
+              class="h-4 w-4 sm:h-5 sm:w-5 {currentPage !== totalPages
+                ? 'group-hover:text-indigo-600'
+                : ''} transition-colors"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  @import 'tailwindcss';
+  *,
 :after,
 :before {
   border: 0 solid #e5e7eb;
@@ -40,15 +366,8 @@ body {
 html {
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
-  font-family:
-    Open Sans,
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    Apple Color Emoji,
-    Segoe UI Emoji,
-    Segoe UI Symbol,
-    Noto Color Emoji;
+  font-family: Open Sans, ui-sans-serif, system-ui, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   font-feature-settings: normal;
   font-variation-settings: normal;
   -moz-tab-size: 4;
@@ -88,15 +407,8 @@ code,
 kbd,
 pre,
 samp {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    Liberation Mono,
-    Courier New,
-    monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    Liberation Mono, Courier New, monospace;
   font-feature-settings: normal;
   font-size: 1em;
   font-variation-settings: normal;
@@ -636,10 +948,7 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 #webcrumbs .bg-gradient-to-br {
-  background-image: linear-gradient(
-    to bottom right,
-    var(--tw-gradient-stops)
-  );
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
 #webcrumbs .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
@@ -709,15 +1018,8 @@ video {
   text-align: center;
 }
 #webcrumbs .font-sans {
-  font-family:
-    Open Sans,
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    Apple Color Emoji,
-    Segoe UI Emoji,
-    Segoe UI Symbol,
-    Noto Color Emoji;
+  font-family: Open Sans, ui-sans-serif, system-ui, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
 }
 #webcrumbs .text-2xl {
   font-size: 24px;
@@ -1035,3 +1337,5 @@ video {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+</style>
