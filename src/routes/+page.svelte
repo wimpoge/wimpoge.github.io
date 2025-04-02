@@ -57,7 +57,7 @@
       </nav>
       <button
       on:click={() => {
-        window.location.href = "mailto:muhamad.rafli.32e@gmail.com"
+        window.location.href = "mailto:mhmd.rafli.32e@gmail.com"
       }}
         class="hidden md:block px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-indigo-200"
       >
