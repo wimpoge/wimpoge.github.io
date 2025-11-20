@@ -3,7 +3,12 @@ import adapter from '@sveltejs/adapter-static';
 
 export default {
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      fallback: 'index.html'
+    }),
+    paths: {
+      base: process.env.BASE_PATH || ''
+    },
     prerender: {
       handleHttpError: ({ path, referrer, message }) => {
         // Ignore 500 errors on specific pages
