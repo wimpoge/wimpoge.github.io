@@ -4,6 +4,15 @@
   import cv from "$lib/Muhamad Rafli_CV.pdf";
 
   const menuOpen = writable(false);
+  let showModal = false;
+  let modalUrl = "";
+  let closeButtonHovered = false;
+  let openTabButtonHovered = false;
+  let isLoading = false;
+  let isBlockedSite = false;
+
+  // Sites that block iframe embedding
+  const blockedDomains = ['figma.com', 'notion.so', 'miro.com', 'youtube.com'];
 
   function toggleMenu() {
     menuOpen.update((value) => !value);
@@ -11,6 +20,38 @@
 
   function closeMenu() {
     menuOpen.set(false);
+  }
+
+  function checkIfBlocked(url) {
+    try {
+      const urlObj = new URL(url);
+      return blockedDomains.some(domain => urlObj.hostname.includes(domain));
+    } catch {
+      return false;
+    }
+  }
+
+  function openModal(url) {
+    modalUrl = url;
+    showModal = true;
+    isBlockedSite = checkIfBlocked(url);
+    isLoading = !isBlockedSite; // Don't show loading if site is blocked
+  }
+
+  function closeModal() {
+    showModal = false;
+    modalUrl = "";
+    isLoading = false;
+    isBlockedSite = false;
+  }
+
+  function handleIframeLoad() {
+    isLoading = false;
+  }
+
+  function openInNewTab() {
+    window.open(modalUrl, '_blank');
+    closeModal();
   }
 
   function downloadCV() {
@@ -26,6 +67,14 @@
     link.click();
     // Clean up
     document.body.removeChild(link);
+  }
+
+  function handleNavClick(event, sectionId) {
+    event.preventDefault();
+    const section = document.querySelector(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
   }
 </script>
 
@@ -47,6 +96,7 @@
             <li>
               <a
                 href={"#" + item.toLowerCase()}
+                on:click={(e) => handleNavClick(e, "#" + item.toLowerCase())}
                 class="relative text-lg hover:font-medium transition-all duration-200 after:absolute after:w-0 after:h-0.5 after:bg-indigo-500 after:left-0 after:-bottom-1 hover:after:w-full after:transition-all"
               >
                 {item}
@@ -83,7 +133,10 @@
             <a
               href={"#" + item.toLowerCase()}
               class="text-lg font-medium text-gray-800 hover:text-indigo-600"
-              on:click={closeMenu}
+              on:click={(e) => {
+                handleNavClick(e, "#" + item.toLowerCase());
+                closeMenu();
+              }}
             >
               {item}
             </a>
@@ -258,13 +311,13 @@
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <a
-                href="https://svelte-chatbot-openai.vercel.app"
-                target="_blank"
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+              <button
+                type="button"
+                on:click={() => openModal("https://svelte-chatbot-openai.vercel.app")}
+                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
               >
                 Live Demo
-              </a>
+              </button>
               <a
                 href="https://github.com/wimpoge/svelte-chatbot-openai"
                 target="_blank"
@@ -297,13 +350,13 @@
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <a
-                href="https://gpt3-tutorial-wheat.vercel.app"
-                target="_blank"
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+              <button
+                type="button"
+                on:click={() => openModal("https://gpt3-tutorial-wheat.vercel.app")}
+                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
               >
                 Live Demo
-              </a>
+              </button>
               <a
                 href="https://github.com/wimpoge/gpt3_tutorial"
                 target="_blank"
@@ -338,13 +391,13 @@
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <a
-                href="https://63c66470eb5c30009400856b--taupe-shortbread-9ad6f1.netlify.app"
-                target="_blank"
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+              <button
+                type="button"
+                on:click={() => openModal("https://63c66470eb5c30009400856b--taupe-shortbread-9ad6f1.netlify.app")}
+                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
               >
                 Live Demo
-              </a>
+              </button>
               <a
                 href="https://github.com/wimpoge/notes-app-react"
                 target="_blank"
@@ -709,3 +762,140 @@
     </section>
   </div>
 </div>
+
+<!-- Modal - Outside main container to avoid overflow-hidden issues -->
+{#if showModal}
+  <div
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1.5rem; animation: fadeIn 0.2s ease-out; backdrop-filter: blur(4px);"
+    on:click={closeModal}
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      style="background-color: white; border-radius: 1rem; width: 100%; max-width: 80rem; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: slideUp 0.3s ease-out; overflow: hidden;"
+      on:click|stopPropagation
+      role="document"
+    >
+      <!-- Modal Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; background: linear-gradient(to bottom, #ffffff, #f9fafb);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
+          <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0;">Live Demo Preview</h3>
+        </div>
+        <button
+          type="button"
+          on:click={closeModal}
+          on:mouseenter={() => closeButtonHovered = true}
+          on:mouseleave={() => closeButtonHovered = false}
+          style="color: {closeButtonHovered ? '#1f2937' : '#6b7280'}; cursor: pointer; padding: 0.5rem; background: {closeButtonHovered ? '#f3f4f6' : 'transparent'}; border: none; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+          aria-label="Close modal"
+        >
+          <span class="material-symbols-outlined" style="font-size: 1.75rem;">close</span>
+        </button>
+      </div>
+
+      <!-- URL Bar -->
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+        <span class="material-symbols-outlined" style="font-size: 1.25rem; color: #6b7280;">lock</span>
+        <div style="flex: 1; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          {modalUrl}
+        </div>
+        <button
+          type="button"
+          on:click={() => window.open(modalUrl, '_blank')}
+          on:mouseenter={() => openTabButtonHovered = true}
+          on:mouseleave={() => openTabButtonHovered = false}
+          style="color: #4f46e5; cursor: pointer; padding: 0.5rem 1rem; background: {openTabButtonHovered ? '#eef2ff' : 'white'}; border: 1px solid #e0e7ff; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
+        >
+          Open in New Tab
+        </button>
+      </div>
+
+      <!-- Modal Body - Iframe or Blocked Message -->
+      <div style="flex: 1; overflow: hidden; background-color: #f3f4f6; position: relative;">
+        {#if isBlockedSite}
+          <!-- Blocked Site Message -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; padding: 2rem;">
+            <div style="max-width: 32rem; text-align: center;">
+              <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #f59e0b;">warning</span>
+              </div>
+              <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Can't Display This Page</h3>
+              <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                For security reasons, this website doesn't allow embedding in iframes. This is common for platforms like Figma, Notion, and others.
+              </p>
+              <p style="color: #4b5563; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem; padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
+                <strong>Solution:</strong> Please open this link in a new browser tab to view the content.
+              </p>
+              <button
+                type="button"
+                on:click={openInNewTab}
+                style="padding: 0.75rem 2rem; background-color: #4f46e5; color: white; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+                on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
+              >
+                Open in New Tab
+              </button>
+            </div>
+          </div>
+        {:else}
+          <!-- Loading Indicator -->
+          {#if isLoading}
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; z-index: 10;">
+              <div class="spinner"></div>
+              <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Loading demo...</p>
+            </div>
+          {/if}
+          <!-- Iframe -->
+          <iframe
+            src={modalUrl}
+            title="Live Demo"
+            style="width: 100%; height: 100%; border: 0; background-color: white;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            on:load={handleIframeLoad}
+          ></iframe>
+        {/if}
+      </div>
+    </div>
+  </div>
+{/if}
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e7ff;
+    border-top: 4px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+</style>

@@ -21,7 +21,6 @@ export const allProjects: Project[] = [
         description: "Generate a chat bot app using OpenAI",
         completionDate: "Feb 2025",
         completionYear: "2025",
-        // completionQuarter: "q1-2025",
         image: "https://i.imgur.com/hIxLBlL.jpg",
         links: "https://svelte-chatbot-openai.vercel.app"
       },
@@ -34,7 +33,6 @@ export const allProjects: Project[] = [
         description: "A forum app for discussing various topics.",
         completionDate: "Dec 2022",
         completionYear: "2022",
-        // completionQuarter: "q4-2022",
         image: "https://imgur.com/8lGdgBd.jpg",
         links: "https://forum-app-seven.vercel.app"
       },
@@ -47,7 +45,6 @@ export const allProjects: Project[] = [
         description: "A Next.js app with Contentful as the headless CMS.",
         completionDate: "Apr 2022",
         completionYear: "2022",
-        // completionQuarter: "q2-2022",
         image: "https://imgur.com/BpM22hW.jpg",
         links: "https://next-js-with-contentful-site.vercel.app"
       },
@@ -60,7 +57,6 @@ export const allProjects: Project[] = [
         description: "A full-fledged e-commerce platform with product listings and payment integration.",
         completionDate: "Oct 2022",
         completionYear: "2022",
-        // completionQuarter: "q4-2022",
         image: "https://imgur.com/X6WNVS6.jpg",
         links: "https://ecommerce-sanity-stripe-woad.vercel.app"
       },
@@ -73,7 +69,6 @@ export const allProjects: Project[] = [
         description: "A simple note-taking app with Dicoding API.",
         completionDate: "Jan 2023",
         completionYear: "2023",
-        // completionQuarter: "q1-2023",
         image: "https://imgur.com/3lIbrVc.jpg",
         links: "https://63c66470eb5c30009400856b--taupe-shortbread-9ad6f1.netlify.app"
       },
@@ -86,7 +81,6 @@ export const allProjects: Project[] = [
         description: "A responsive web design themed AI.",
         completionDate: "Mar 2024",
         completionYear: "2024",
-        // completionQuarter: "q1-2023",
         image: "https://imgur.com/KKqaVnD.jpg",
         links: "https://gpt3-tutorial-wheat.vercel.app"
       },
@@ -102,20 +96,7 @@ export const allProjects: Project[] = [
         // completionQuarter: "q1-2022",
         image: "https://imgur.com/WM4x7fy.jpg",
         links: "https://www.figma.com/design/DhJKuM86lshL3UjCGiPIQZ/Untitled?node-id=0-1&t=75lsMoq77dnCI8X1-1"
-      },
-      {
-        id: 8,
-        title: "Chat App",
-        category: "web",
-        categoryLabel: "Web Development",
-        categoryColor: "yellow",
-        description: "Full Stack Chat App with Python and Next.js.",
-        completionDate: "Mar 2025",
-        completionYear: "2025",
-        // completionQuarter: "q1-2022",
-        image: "https://imgur.com/I6XFx73.jpg",
-        links: ""
-      }
+      }   
 ];
 
 export function getCategoryColorClasses(color: string) {

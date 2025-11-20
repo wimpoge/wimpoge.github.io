@@ -8,10 +8,79 @@
 
   let categoryFilter = "";
   let dateFilter = "";
-  let sortBy = "recent";
+  let sortBy = "a-z";
   let currentPage = 1;
-  let filteredProjects: Project[] = [];
+  let imageLoadingStates: { [key: string]: boolean } = {};
+  // Initialize with sorted projects (most recent first)
+  let filteredProjects: Project[] = [...allProjects].sort(
+    (a, b) =>
+      new Date(b.completionDate).getTime() -
+      new Date(a.completionDate).getTime()
+  );
   const projectsPerPage = 6;
+  let showModal = false;
+  let modalUrl = "";
+  let closeButtonHovered = false;
+  let openTabButtonHovered = false;
+  let isLoading = false;
+  let isBlockedSite = false;
+
+  // Sites that block iframe embedding
+  const blockedDomains = ['figma.com', 'notion.so', 'miro.com', 'youtube.com'];
+
+  function checkIfBlocked(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      return blockedDomains.some(domain => urlObj.hostname.includes(domain));
+    } catch {
+      return false;
+    }
+  }
+
+  function openModal(url: string) {
+    modalUrl = url;
+    showModal = true;
+    isBlockedSite = checkIfBlocked(url);
+    isLoading = !isBlockedSite; // Don't show loading if site is blocked
+  }
+
+  function closeModal() {
+    showModal = false;
+    modalUrl = "";
+    isLoading = false;
+    isBlockedSite = false;
+  }
+
+  function handleIframeLoad() {
+    isLoading = false;
+  }
+
+  function openInNewTab() {
+    window.open(modalUrl, '_blank');
+    closeModal();
+  }
+
+  function handleImageLoad(projectId: string) {
+    imageLoadingStates[projectId] = false;
+    imageLoadingStates = { ...imageLoadingStates };
+  }
+
+  function handleImageError(projectId: string, event: Event) {
+    imageLoadingStates[projectId] = false;
+    imageLoadingStates = { ...imageLoadingStates };
+    // Set fallback placeholder image
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://placehold.co/600x400/e0e7ff/4f46e5?text=Project+Image';
+  }
+
+  // Initialize loading states for all projects
+  $: {
+    currentProjects.forEach(project => {
+      if (!(project.title in imageLoadingStates)) {
+        imageLoadingStates[project.title] = true;
+      }
+    });
+  }
 
   function applyFilters() {
     let result = [...allProjects];
@@ -28,35 +97,32 @@
 
     // Sorting
     switch (sortBy) {
-      case "recent":
-        result.sort(
-          (a, b) =>
-            new Date(b.completionDate).getTime() -
-            new Date(a.completionDate).getTime()
-        );
-        break;
-      case "oldest":
-        result.sort(
-          (a, b) =>
-            new Date(a.completionDate).getTime() -
-            new Date(b.completionDate).getTime()
-        );
-        break;
       case "a-z":
         result.sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "z-a":
         result.sort((a, b) => b.title.localeCompare(a.title));
         break;
+      default:
+        // Default: keep date order (most recent first)
+        result.sort(
+          (a, b) =>
+            new Date(b.completionDate).getTime() -
+            new Date(a.completionDate).getTime()
+        );
     }
 
     filteredProjects = result;
     currentPage = 1;
   }
 
-  $: {
+  // Initialize on mount and sort by most recent
+  onMount(() => {
     applyFilters();
-  }
+  });
+
+  // React to filter/sort changes
+  $: categoryFilter, dateFilter, sortBy, applyFilters();
 
   $: indexOfLastProject = currentPage * projectsPerPage;
   $: indexOfFirstProject = indexOfLastProject - projectsPerPage;
@@ -73,6 +139,10 @@
   }
 
   $: pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  // Get unique years from projects and sort them (newest first)
+  $: availableYears = [...new Set(allProjects.map(p => p.completionYear))]
+    .sort((a, b) => parseInt(b) - parseInt(a));
 </script>
 
 <div id="webcrumbs">
@@ -135,10 +205,9 @@
                 bind:value={dateFilter}
               >
                 <option value="">All Dates</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
+                {#each availableYears as year}
+                  <option value={year}>{year}</option>
+                {/each}
               </select>
               <div
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
@@ -168,8 +237,6 @@
                 class="px-4 w-full bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none hover:border-indigo-300 transition-colors"
                 bind:value={sortBy}
               >
-                <option value="recent">Most Recent</option>
-                <option value="oldest">Oldest First</option>
                 <option value="a-z">A-Z</option>
                 <option value="z-a">Z-A</option>
               </select>
@@ -192,31 +259,30 @@
             </div>
           </div>
         </div>
-
-        <div class="w-full flex md:justify-end">
-          <button
-            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md shadow-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
-            on:click={applyFilters}
-          >
-            Apply Filters
-          </button>
-        </div>
       </div>
     </div>
 
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 pb-24"
     >
       {#if currentProjects.length > 0}
         {#each currentProjects as project}
           <div
             class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group"
           >
-            <div class="h-48 sm:h-52 md:h-56 overflow-hidden relative">
+            <div class="h-48 sm:h-52 md:h-56 overflow-hidden relative bg-gray-100">
+              {#if imageLoadingStates[project.title]}
+                <!-- Loading skeleton -->
+                <div class="absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <div class="spinner"></div>
+                </div>
+              {/if}
               <img
                 src={project.image}
                 alt={project.title}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 {imageLoadingStates[project.title] ? 'opacity-0' : 'opacity-100'}"
+                on:load={() => handleImageLoad(project.title)}
+                on:error={(e) => handleImageError(project.title, e)}
               />
               <div
                 class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -245,14 +311,13 @@
                 <span class="text-xs sm:text-sm text-gray-500"
                   >Completed: {project.completionDate}</span
                 >
-                <a
-                  href={project.links}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md"
+                <button
+                  type="button"
+                  on:click={() => openModal(project.links)}
+                  class="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md cursor-pointer"
                 >
-                  View Details
-                </a>
+                  Live Demo
+                </button>
               </div>
             </div>
           </div>
@@ -268,25 +333,22 @@
 
     {#if totalPages > 1}
       <div
-        class="flex justify-center items-center mt-6 sm:mt-8 md:mt-10 pb-4 overflow-visible"
+        class="fixed bottom-0 left-0 right-0 z-50 flex justify-center items-center py-4 bg-gradient-to-t from-white via-white to-transparent backdrop-blur-sm"
       >
         <nav
-          class="inline-flex flex-wrap rounded-md shadow-sm justify-center gap-1"
+          class="inline-flex flex-wrap rounded-xl shadow-2xl bg-white p-2 gap-2 justify-center items-center border border-gray-200"
           aria-label="Pagination"
         >
           <button
             on:click={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            class="relative inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-l-md border {currentPage ===
-            1
-              ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 group cursor-pointer'}"
+            class="relative inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 transition-all duration-300 {currentPage === 1
+              ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+              : 'border-indigo-200 bg-white text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 hover:shadow-md hover:scale-110 cursor-pointer group'}"
           >
             <span class="sr-only">Previous</span>
             <svg
-              class="h-4 w-4 sm:h-5 sm:w-5 {currentPage !== 1
-                ? 'group-hover:text-indigo-600'
-                : ''} transition-colors"
+              class="h-5 w-5 transition-all duration-300"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -309,10 +371,9 @@
             {#if showPageNumber}
               <button
                 on:click={() => paginate(number)}
-                class="relative inline-flex items-center px-4  border {currentPage ===
-                number
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
-                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 hover:text-indigo-600'}"
+                class="relative inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-300 {currentPage === number
+                  ? 'border-indigo-600 bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-110'
+                  : 'border-indigo-200 bg-white text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400 hover:scale-105 cursor-pointer'}"
               >
                 {number}
               </button>
@@ -322,16 +383,13 @@
           <button
             on:click={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            class="relative inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-r-md border {currentPage ===
-            totalPages
-              ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors hover:border-indigo-300 group cursor-pointer'}"
+            class="relative inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 transition-all duration-300 {currentPage === totalPages
+              ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+              : 'border-indigo-200 bg-white text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 hover:shadow-md hover:scale-110 cursor-pointer group'}"
           >
             <span class="sr-only">Next</span>
             <svg
-              class="h-4 w-4 sm:h-5 sm:w-5 {currentPage !== totalPages
-                ? 'group-hover:text-indigo-600'
-                : ''} transition-colors"
+              class="h-5 w-5 transition-all duration-300"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -350,7 +408,142 @@
   </div>
 </div>
 
+<!-- Modal - Outside main container to avoid overflow-hidden issues -->
+{#if showModal}
+  <div
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1.5rem; animation: fadeIn 0.2s ease-out; backdrop-filter: blur(4px);"
+    on:click={closeModal}
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      style="background-color: white; border-radius: 1rem; width: 100%; max-width: 80rem; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: slideUp 0.3s ease-out; overflow: hidden;"
+      on:click|stopPropagation
+      role="document"
+    >
+      <!-- Modal Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; background: linear-gradient(to bottom, #ffffff, #f9fafb);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
+          <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0;">Live Demo Preview</h3>
+        </div>
+        <button
+          type="button"
+          on:click={closeModal}
+          on:mouseenter={() => closeButtonHovered = true}
+          on:mouseleave={() => closeButtonHovered = false}
+          style="color: {closeButtonHovered ? '#1f2937' : '#6b7280'}; cursor: pointer; padding: 0.5rem; background: {closeButtonHovered ? '#f3f4f6' : 'transparent'}; border: none; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+          aria-label="Close modal"
+        >
+          <span class="material-symbols-outlined" style="font-size: 1.75rem;">close</span>
+        </button>
+      </div>
+
+      <!-- URL Bar -->
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+        <span class="material-symbols-outlined" style="font-size: 1.25rem; color: #6b7280;">lock</span>
+        <div style="flex: 1; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          {modalUrl}
+        </div>
+        <button
+          type="button"
+          on:click={() => window.open(modalUrl, '_blank')}
+          on:mouseenter={() => openTabButtonHovered = true}
+          on:mouseleave={() => openTabButtonHovered = false}
+          style="color: #4f46e5; cursor: pointer; padding: 0.5rem 1rem; background: {openTabButtonHovered ? '#eef2ff' : 'white'}; border: 1px solid #e0e7ff; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
+        >
+          Open in New Tab
+        </button>
+      </div>
+
+      <!-- Modal Body - Iframe or Blocked Message -->
+      <div style="flex: 1; overflow: hidden; background-color: #f3f4f6; position: relative;">
+        {#if isBlockedSite}
+          <!-- Blocked Site Message -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; padding: 2rem;">
+            <div style="max-width: 32rem; text-align: center;">
+              <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #f59e0b;">warning</span>
+              </div>
+              <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Can't Display This Page</h3>
+              <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                For security reasons, this website doesn't allow embedding in iframes. This is common for platforms like Figma, Notion, and others.
+              </p>
+              <p style="color: #4b5563; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem; padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
+                <strong>Solution:</strong> Please open this link in a new browser tab to view the content.
+              </p>
+              <button
+                type="button"
+                on:click={openInNewTab}
+                style="padding: 0.75rem 2rem; background-color: #4f46e5; color: white; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+                on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
+              >
+                Open in New Tab
+              </button>
+            </div>
+          </div>
+        {:else}
+          <!-- Loading Indicator -->
+          {#if isLoading}
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; z-index: 10;">
+              <div class="spinner"></div>
+              <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Loading demo...</p>
+            </div>
+          {/if}
+          <!-- Iframe -->
+          <iframe
+            src={modalUrl}
+            title="Live Demo"
+            style="width: 100%; height: 100%; border: 0; background-color: white;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            on:load={handleIframeLoad}
+          ></iframe>
+        {/if}
+      </div>
+    </div>
+  </div>
+{/if}
+
 <style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e7ff;
+    border-top: 4px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
   @import 'tailwindcss';
   *,
 :after,
