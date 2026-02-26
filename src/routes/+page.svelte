@@ -150,12 +150,11 @@
     >
       <div class="w-full md:w-1/2 md:pr-10 mb-10 md:mb-0">
         <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-          Front-End Developer <span class="text-indigo-600">Building</span> Modern
-          Web Experiences
+          Full-Stack Developer <span class="text-indigo-600">Building</span> Modern
+          Web & Mobile Experiences
         </h2>
         <p class="text-lg md:text-xl mb-8 text-gray-600">
-          I craft responsive, user-friendly interfaces with clean code and
-          modern technologies.
+          I craft responsive, user-friendly applications from front-end interfaces to back-end systems — with clean code, modern technologies, and a growing passion for AI integration.
         </p>
         <div class="flex flex-col sm:flex-row gap-4">
           <button
@@ -224,7 +223,7 @@
 
     <section id="about" class="px-6 md:px-10 py-16 md:py-20">
       <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">About Me</h2>
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">Who I Am</h2>
         <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
       </div>
       <div class="flex flex-col md:flex-row items-center gap-10 md:gap-20">
@@ -238,16 +237,17 @@
         <div class="w-full md:w-1/2 mt-8 md:mt-0">
           <h3 class="text-2xl font-semibold mb-4">Who I Am</h3>
           <p class="text-gray-600 mb-6 leading-relaxed">
-            I'm a passionate front-end developer with >2 years of experience
-            creating elegant, responsive web applications. I specialize in
-            translating design concepts into clean, efficient code that delivers
-            exceptional user experiences.
+            I'm a passionate developer with 2+ years of experience specializing
+            in front-end development, recently transitioning into full-stack
+            development. I specialize in translating design concepts into clean,
+            efficient code that delivers exceptional user experiences.
           </p>
           <p class="text-gray-600 mb-8 leading-relaxed">
-            My approach combines technical expertise with a keen eye for design
-            and an understanding of user behavior. I'm constantly learning and
-            experimenting with new technologies to stay at the forefront of web
-            development.
+            My journey has expanded beyond the front-end — I'm now building REST
+            APIs, working with databases, integrating AI capabilities, and
+            deploying applications on cloud infrastructure. I'm constantly
+            learning and experimenting with new technologies to grow as a
+            well-rounded developer.
           </p>
           <div class="flex flex-wrap gap-4">
             <div class="flex items-center">
@@ -437,8 +437,7 @@
         <h2 class="text-3xl md:text-4xl font-bold mb-3">Work Experience</h2>
         <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
         <p class="mt-6 text-gray-600 text-center max-w-2xl">
-          My professional journey in front-end development and the companies
-          I've collaborated with.
+          My professional journey and the companies I've collaborated with.
         </p>
       </div>
       <div class="max-w-4xl mx-auto relative">
@@ -448,79 +447,70 @@
 
         <div class="relative mb-16">
           <div class="flex items-center justify-center">
-            <div
-              class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"
-            ></div>
+            <div class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"></div>
           </div>
-          <div
-            class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20"
-          >
-            <div
-              class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10"
-            >
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
+            <div class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10">
               2024 - Present
             </div>
           </div>
-          <div
-            class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]"
-          >
-            <h3 class="text-xl font-semibold mb-2">Front-End Developer</h3>
-            <p class="text-indigo-600 mb-4">PT. Berca Hardayaperkasa</p>
-            <p class="text-gray-600 mb-4">
-              Joined a company engaged in information technology and IT service
-              provision. This company is also known as a leading information
-              technology consultant in Indonesia.
-            </p>
-            <ul class="list-disc list-inside text-gray-600 space-y-1">
-              <li>
-                Implement various AI models into the front end, either through a
-                REST API or directly from the official source.
-              </li>
-              <li>
-                Develop UI using various frameworks such as Next.js and
-                SvelteKit.
-              </li>
-              <li>
-                Developing complex applications that integrate AI technologies
-                to enhance functionality and user experience.
-              </li>
-            </ul>
+          <div class="mt-8 mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(75%)]">
+            <p class="text-indigo-600 font-semibold text-lg mb-5">PT. Berca Hardayaperkasa</p>
+
+            <div class="mb-6 pb-6 border-b border-gray-100">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-semibold">Full-Stack Developer</h3>
+                <span class="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Feb 2026 - Present</span>
+              </div>
+              <p class="text-gray-600 mb-3">
+                Promoted to Full-Stack Developer, expanding responsibilities beyond the front end to cover the full application stack.
+              </p>
+              <ul class="list-disc list-inside text-gray-600 space-y-1">
+                <li>Build and maintain REST APIs using Python & FastAPI.</li>
+                <li>Design and manage databases with PostgreSQL and MySQL.</li>
+                <li>Integrate AI capabilities using OpenAI API, CrewAI, and Prompt Engineering.</li>
+                <li>Deploy and manage applications on AWS EC2 with PM2 and Docker.</li>
+                <li>Develop cross-platform mobile apps using Flutter.</li>
+                <li>Continue building front-end interfaces with React, Next.js, and SvelteKit.</li>
+              </ul>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-semibold">Front-End Developer</h3>
+                <span class="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">2024 - Jan 2026</span>
+              </div>
+              <p class="text-gray-600 mb-3">
+                Joined a leading IT consultant company in Indonesia, building front-end interfaces and AI-integrated applications.
+              </p>
+              <ul class="list-disc list-inside text-gray-600 space-y-1">
+                <li>Implemented AI models into the front end via REST API and direct integrations.</li>
+                <li>Developed UI using Next.js and SvelteKit.</li>
+                <li>Built complex applications integrating AI technologies to enhance user experience.</li>
+              </ul>
+            </div>
           </div>
         </div>
 
         <div class="relative mb-16">
           <div class="flex items-center justify-center">
-            <div
-              class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"
-            ></div>
+            <div class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"></div>
           </div>
-          <div
-            class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20"
-          >
-            <div
-              class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10"
-            >
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
+            <div class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10">
               2023 - 2024
             </div>
           </div>
-          <div
-            class="mt-8 md:mt-6 md:ml-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)] md:relative md:left-1/2"
-          >
+          <div class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]">
             <h3 class="text-xl font-semibold mb-2">Front-End Developer</h3>
             <p class="text-indigo-600 mb-4">PT. Semesta Arus Teknologi</p>
             <p class="text-gray-600 mb-4">
-              My first professional career as a front-end developer using
-              SvelteKit.
+              My first professional career as a front-end developer using SvelteKit.
             </p>
             <ul class="list-disc list-inside text-gray-600 space-y-1">
               <li>Developed projects for government agencies.</li>
-              <li>
-                Implemented File Extraction feature to extract content from a
-                file.
-              </li>
-              <li>
-                Developed Tracking Gmaps Location feature based on Phone Number.
-              </li>
+              <li>Implemented File Extraction feature to extract content from a file.</li>
+              <li>Developed Tracking Gmaps Location feature based on Phone Number.</li>
               <li>Created Role Management for specified feature access.</li>
               <li>Implemented Export File pdf and excel features.</li>
               <li>Created Chart Diagram based on available data.</li>
@@ -544,7 +534,7 @@
             </div>
           </div>
           <div
-            class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]"
+            class="mt-8 md:mt-6 md:ml-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)] md:relative md:left-1/2"
           >
             <h3 class="text-xl font-semibold mb-2">
               Psychology Laboratory Programmer
@@ -588,7 +578,7 @@
             </div>
           </div>
           <div
-            class="mt-8 md:mt-6 md:ml-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)] md:relative md:left-1/2"
+            class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]"
           >
             <h3 class="text-xl font-semibold mb-2">Internship</h3>
             <p class="text-indigo-600 mb-4">PT. Sewiwi Indonesia</p>
@@ -612,152 +602,128 @@
         </p>
       </div>
 
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto"
-      >
-        <div
-          class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div
-            class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center mb-6"
-          >
-            <span class="material-symbols-outlined text-indigo-600 text-3xl"
-              >code</span
-            >
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+
+        <!-- Frontend -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">code</span>
+            </div>
+            <h3 class="text-xl font-semibold">Frontend</h3>
           </div>
-          <h3 class="text-xl font-semibold mb-4">Frontend Development</h3>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">HTML/CSS</span>
-                <span>95%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[95%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">JavaScript</span>
-                <span>90%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[90%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">React</span>
-                <span>85%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[85%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Next JS</span>
-                <span>85%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[85%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Sveltekit</span>
-                <span>85%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[85%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["HTML/CSS", "JavaScript", "TypeScript", "React", "Next.js", "Sveltekit"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
           </div>
         </div>
 
-        <div
-          class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div
-            class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center mb-6"
-          >
-            <span class="material-symbols-outlined text-indigo-600 text-3xl">
-              design_services
-            </span>
+        <!-- UI/UX & Design -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">design_services</span>
+            </div>
+            <h3 class="text-xl font-semibold">UI/UX & Design</h3>
           </div>
-          <h3 class="text-xl font-semibold mb-4">UI/UX & Design</h3>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Responsive Design</span>
-                <span>95%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[95%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Tailwind CSS</span>
-                <span>90%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[90%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Figma</span>
-                <span>80%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[80%] transition-all duration-500"
-                ></div>
-              </div>
-            </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["Responsive Design", "Tailwind CSS", "Figma", "shadcn/ui", "Aceternity UI", "Bootstrap"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
           </div>
         </div>
 
-        <div
-          class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div
-            class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center mb-6"
-          >
-            <span class="material-symbols-outlined text-indigo-600 text-3xl"
-              >layers</span
-            >
-          </div>
-          <h3 class="text-xl font-semibold mb-4">Development Tools</h3>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium">Git/GitHub</span>
-                <span>90%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-indigo-600 h-2 rounded-full w-[90%] transition-all duration-500"
-                ></div>
-              </div>
+        <!-- Backend -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">dns</span>
             </div>
+            <h3 class="text-xl font-semibold">Backend</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["Python", "FastAPI", "Node.js", "Express.js", "REST API"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
           </div>
         </div>
+
+        <!-- Databases -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">storage</span>
+            </div>
+            <h3 class="text-xl font-semibold">Databases</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["PostgreSQL", "MySQL", "MongoDB"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Mobile -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">smartphone</span>
+            </div>
+            <h3 class="text-xl font-semibold">Mobile</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["Flutter"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
+          </div>
+        </div>
+
+        <!-- AI & Integrations -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">auto_awesome</span>
+            </div>
+            <h3 class="text-xl font-semibold">AI & Integrations</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["OpenAI API", "CrewAI", "Prompt Engineering", "HuggingFace"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Cloud & DevOps -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">cloud</span>
+            </div>
+            <h3 class="text-xl font-semibold">Cloud & DevOps</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["AWS EC2", "PM2", "Docker"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Dev Tools -->
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-indigo-600 text-3xl">build</span>
+            </div>
+            <h3 class="text-xl font-semibold">Dev Tools</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {#each ["Git/GitHub", "Conda"] as skill}
+              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
+            {/each}
+          </div>
+        </div>
+
       </div>
     </section>
   </div>
