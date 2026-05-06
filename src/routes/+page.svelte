@@ -254,7 +254,7 @@
               <span class="material-symbols-outlined text-indigo-600 mr-3"
                 >mail</span
               >
-              <span>muhamad.rafli.32e@gmail.com</span>
+              <span>mhmd.rafli.32e@gmail.com</span>
             </div>
 
             <div class="flex items-center">
