@@ -2,17 +2,36 @@
   import { writable } from "svelte/store";
   import profile from "$lib/images/profile.jpg";
   import cv from "$lib/Muhamad Rafli_CV.pdf";
+  import Icon from "$lib/Icon.svelte";
+  import {
+    allProjects,
+    getEmbedUrl,
+    getProjectThumbnail,
+    getYouTubeId,
+    parseCompletionDate,
+  } from "$lib/projects-types";
 
   const menuOpen = writable(false);
   let showModal = false;
   let modalUrl = "";
+  let iframeUrl = "";
   let closeButtonHovered = false;
   let openTabButtonHovered = false;
   let isLoading = false;
   let isBlockedSite = false;
 
-  // Sites that block iframe embedding
-  const blockedDomains = ['figma.com', 'notion.so', 'miro.com', 'youtube.com'];
+  // Three newest projects, by completion date.
+  const featuredProjects = [...allProjects]
+    .sort(
+      (a, b) =>
+        parseCompletionDate(b.completionDate) -
+        parseCompletionDate(a.completionDate)
+    )
+    .slice(0, 3);
+
+  // Sites that block iframe embedding (YouTube watch URLs are converted to
+  // /embed/ form in getEmbedUrl so they no longer count as blocked).
+  const blockedDomains = ['figma.com', 'notion.so', 'miro.com'];
 
   function toggleMenu() {
     menuOpen.update((value) => !value);
@@ -33,14 +52,16 @@
 
   function openModal(url) {
     modalUrl = url;
+    iframeUrl = getEmbedUrl(url);
     showModal = true;
-    isBlockedSite = checkIfBlocked(url);
+    isBlockedSite = checkIfBlocked(iframeUrl);
     isLoading = !isBlockedSite; // Don't show loading if site is blocked
   }
 
   function closeModal() {
     showModal = false;
     modalUrl = "";
+    iframeUrl = "";
     isLoading = false;
     isBlockedSite = false;
   }
@@ -113,10 +134,8 @@
       >
         Contact Me
       </button>
-      <button class="md:hidden text-indigo-600" on:click={toggleMenu}>
-        <span class="material-symbols-outlined text-3xl">
-          {$menuOpen ? "close" : "menu"}
-        </span>
+      <button class="md:hidden text-indigo-600" on:click={toggleMenu} aria-label="Toggle menu">
+        <Icon name={$menuOpen ? "close" : "menu"} class="text-3xl" />
       </button>
     </header>
 
@@ -189,23 +208,29 @@
           <a
             href="https://github.com/wimpoge"
             target="_blank"
+            rel="noopener"
+            aria-label="GitHub"
             class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
           >
-            <i class="fa-brands fa-github text-xl"></i>
+            <Icon name="github" class="text-xl" />
           </a>
           <a
             href="https://www.linkedin.com/in/muhamad-rafli-80a3491b9"
             target="_blank"
+            rel="noopener"
+            aria-label="LinkedIn"
             class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
           >
-            <i class="fa-brands fa-linkedin-in text-xl"></i>
+            <Icon name="linkedin" class="text-xl" />
           </a>
           <a
             href="https://www.instagram.com/mhmdrafli.____"
             target="_blank"
+            rel="noopener"
+            aria-label="Instagram"
             class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
           >
-            <i class="fa-brands fa-instagram text-xl"></i>
+            <Icon name="instagram" class="text-xl" />
           </a>
         </div>
       </div>
@@ -216,7 +241,13 @@
           <div
             class="absolute inset-0 bg-gradient-to-br from-indigo-200 to-transparent opacity-50"
           ></div>
-          <img src={profile} alt="Profile" class="object-cover w-full h-full" />
+          <img
+            src={profile}
+            alt="Profile"
+            class="object-cover w-full h-full"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
       </div>
     </section>
@@ -231,6 +262,8 @@
           <img
             src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80"
             alt="Developer coding"
+            loading="lazy"
+            decoding="async"
             class="rounded-lg shadow-xl w-full h-[300px] md:h-[400px] object-cover transform hover:scale-105 transition-all duration-500"
           />
         </div>
@@ -251,16 +284,12 @@
           </p>
           <div class="flex flex-wrap gap-4">
             <div class="flex items-center">
-              <span class="material-symbols-outlined text-indigo-600 mr-3"
-                >mail</span
-              >
+              <Icon name="mail" class="text-indigo-600 mr-3" />
               <span>muhamad.rafli.32e@gmail.com</span>
             </div>
 
             <div class="flex items-center">
-              <span class="material-symbols-outlined text-indigo-600 mr-3"
-                >location_on</span
-              >
+              <Icon name="location_on" class="text-indigo-600 mr-3" />
               <span>Depok, Indonesia</span>
             </div>
           </div>
@@ -270,145 +299,58 @@
 
     <section id="projects" class="px-6 md:px-10 py-16 md:py-20 bg-gray-50">
       <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">My Projects</h2>
+        <h2 class="text-3xl md:text-4xl font-bold mb-3">My Latest Projects</h2>
         <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
         <p class="mt-6 text-gray-600 text-center max-w-2xl">
-          Here are some of my recent projects that showcase my skills and
-          expertise in front-end development.
+          A look at what I've been building most recently — showcasing my skills
+          and expertise in fullstack development.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div
-          class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div class="h-[200px] overflow-hidden">
-            <img
-              src="https://i.imgur.com/hIxLBlL.jpg"
-              alt=""
-              class="w-full h-full object-cover hover:scale-110 transition-all duration-500"
-            />
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Chat Bot App</h3>
-            <p class="text-gray-600 mb-4">
-              Generate a chat bot app using OpenAI.
-            </p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
-              >
-                Sveltekit
-              </span>
-              <span
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
-              >
-                Tailwind CSS
-              </span>
-              <span
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
-              >
-                GPT-3.5
-              </span>
+        {#each featuredProjects as project (project.id)}
+          <div
+            class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex flex-col"
+            style="height: 100%;"
+          >
+            <div class="h-[200px] overflow-hidden bg-gray-100">
+              <img
+                src={getProjectThumbnail(project)}
+                alt={project.title}
+                loading="lazy"
+                decoding="async"
+                class="w-full h-full object-cover hover:scale-110 transition-all duration-500"
+              />
             </div>
-            <div class="flex justify-between items-center">
-              <button
-                type="button"
-                on:click={() => openModal("https://svelte-chatbot-openai.vercel.app")}
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
+            <div class="p-6 flex flex-col" style="flex: 1 1 0%;">
+              <div class="mb-2">
+                <span
+                  class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium"
+                >
+                  {project.categoryLabel}
+                </span>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
+              <p class="text-gray-600 mb-4" style="flex: 1 1 0%;">
+                {project.description}
+              </p>
+              <div
+                class="flex justify-between items-center"
+                style="margin-top: auto;"
               >
-                Live Demo
-              </button>
-              <a
-                href="https://github.com/wimpoge/svelte-chatbot-openai"
-                target="_blank"
-                class="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-              >
-                Code
-                <i class="fa-brands fa-github ml-1"></i>
-              </a>
+                <span class="text-sm text-gray-500">
+                  {project.completionDate}
+                </span>
+                <button
+                  type="button"
+                  on:click={() => openModal(project.links)}
+                  class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
+                >
+                  {getYouTubeId(project.links) ? "Watch Demo" : "Live Demo"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div class="h-[200px] overflow-hidden">
-            <img
-              src="https://imgur.com/KKqaVnD.jpg"
-              alt=""
-              class="w-full h-full object-cover hover:scale-110 transition-all duration-500"
-            />
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Responsive Web Design</h3>
-            <p class="text-gray-600 mb-4">A responsive web design themed AI.</p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
-              >
-                React.js
-              </span>
-            </div>
-            <div class="flex justify-between items-center">
-              <button
-                type="button"
-                on:click={() => openModal("https://gpt3-tutorial-wheat.vercel.app")}
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
-              >
-                Live Demo
-              </button>
-              <a
-                href="https://github.com/wimpoge/gpt3_tutorial"
-                target="_blank"
-                class="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-              >
-                Code
-                <i class="fa-brands fa-github ml-1"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div
-          class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-        >
-          <div class="h-[200px] overflow-hidden">
-            <img
-              src="https://imgur.com/3lIbrVc.jpg"
-              alt="Mobile app"
-              class="w-full h-full object-cover hover:scale-110 transition-all duration-500"
-            />
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Notes App</h3>
-            <p class="text-gray-600 mb-4">
-              A simple note-taking app with Dicoding API.
-            </p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
-              >
-                React.js
-              </span>
-            </div>
-            <div class="flex justify-between items-center">
-              <button
-                type="button"
-                on:click={() => openModal("https://63c66470eb5c30009400856b--taupe-shortbread-9ad6f1.netlify.app")}
-                class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
-              >
-                Live Demo
-              </button>
-              <a
-                href="https://github.com/wimpoge/notes-app-react"
-                target="_blank"
-                class="flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-              >
-                Code
-                <i class="fa-brands fa-github ml-1"></i>
-              </a>
-            </div>
-          </div>
-        </div>
+        {/each}
       </div>
       <div class="flex justify-center mt-12">
         <button
@@ -608,7 +550,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">code</span>
+              <Icon name="code" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Frontend</h3>
           </div>
@@ -623,7 +565,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">design_services</span>
+              <Icon name="design_services" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">UI/UX & Design</h3>
           </div>
@@ -638,7 +580,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">dns</span>
+              <Icon name="dns" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Backend</h3>
           </div>
@@ -653,7 +595,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">storage</span>
+              <Icon name="storage" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Databases</h3>
           </div>
@@ -668,7 +610,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">smartphone</span>
+              <Icon name="smartphone" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Mobile</h3>
           </div>
@@ -683,7 +625,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">auto_awesome</span>
+              <Icon name="auto_awesome" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">AI & Integrations</h3>
           </div>
@@ -698,7 +640,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">cloud</span>
+              <Icon name="cloud" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Cloud & DevOps</h3>
           </div>
@@ -713,7 +655,7 @@
         <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
           <div class="flex items-center gap-4 mb-6">
             <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-indigo-600 text-3xl">build</span>
+              <Icon name="build" class="text-indigo-600 text-3xl" />
             </div>
             <h3 class="text-xl font-semibold">Dev Tools</h3>
           </div>
@@ -756,13 +698,13 @@
           style="color: {closeButtonHovered ? '#1f2937' : '#6b7280'}; cursor: pointer; padding: 0.5rem; background: {closeButtonHovered ? '#f3f4f6' : 'transparent'}; border: none; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
           aria-label="Close modal"
         >
-          <span class="material-symbols-outlined" style="font-size: 1.75rem;">close</span>
+          <Icon name="close" size="1.75rem" />
         </button>
       </div>
 
       <!-- URL Bar -->
       <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-        <span class="material-symbols-outlined" style="font-size: 1.25rem; color: #6b7280;">lock</span>
+        <span style="color: #6b7280; display: inline-flex;"><Icon name="lock" size="1.25rem" label="Secure" /></span>
         <div style="flex: 1; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           {modalUrl}
         </div>
@@ -784,7 +726,7 @@
           <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; padding: 2rem;">
             <div style="max-width: 32rem; text-align: center;">
               <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #f59e0b;">warning</span>
+                <span style="color: #f59e0b; display: inline-flex;"><Icon name="warning" size="2.5rem" label="Warning" /></span>
               </div>
               <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Can't Display This Page</h3>
               <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
@@ -814,10 +756,11 @@
           {/if}
           <!-- Iframe -->
           <iframe
-            src={modalUrl}
+            src={iframeUrl}
             title="Live Demo"
             style="width: 100%; height: 100%; border: 0; background-color: white;"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
             on:load={handleIframeLoad}
           ></iframe>
         {/if}

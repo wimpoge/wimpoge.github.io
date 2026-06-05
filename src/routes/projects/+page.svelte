@@ -4,29 +4,41 @@
   import {
     allProjects,
     getCategoryColorClasses,
+    getEmbedUrl,
+    getProjectThumbnail,
+    getYouTubeId,
+    parseCompletionDate,
   } from "../../lib/projects-types";
+  import Icon from "$lib/Icon.svelte";
 
   let categoryFilter = "";
   let dateFilter = "";
-  let sortBy = "a-z";
+  let sortBy = "newest";
   let currentPage = 1;
   let imageLoadingStates: { [key: string]: boolean } = {};
   // Initialize with sorted projects (most recent first)
   let filteredProjects: Project[] = [...allProjects].sort(
     (a, b) =>
-      new Date(b.completionDate).getTime() -
-      new Date(a.completionDate).getTime()
+      parseCompletionDate(b.completionDate) -
+      parseCompletionDate(a.completionDate)
   );
   const projectsPerPage = 6;
   let showModal = false;
   let modalUrl = "";
+  let iframeUrl = "";
+  let modalTitle = "";
+  let activeProjectId: number | null = null;
   let closeButtonHovered = false;
   let openTabButtonHovered = false;
+  let shareButtonHovered = false;
   let isLoading = false;
   let isBlockedSite = false;
+  let copyStatus: "idle" | "copied" | "error" = "idle";
+  let copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // Sites that block iframe embedding
-  const blockedDomains = ['figma.com', 'notion.so', 'miro.com', 'youtube.com'];
+  // Sites that block iframe embedding (YouTube watch URLs are converted to
+  // /embed/ form in getEmbedUrl so they no longer count as blocked).
+  const blockedDomains = ['figma.com', 'notion.so', 'miro.com'];
 
   function checkIfBlocked(url: string): boolean {
     try {
@@ -37,18 +49,74 @@
     }
   }
 
-  function openModal(url: string) {
-    modalUrl = url;
+  function syncUrlWithProject(id: number | null) {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (id === null) {
+      url.searchParams.delete("id");
+    } else {
+      url.searchParams.set("id", String(id));
+    }
+    const newRelative = url.pathname + (url.search ? url.search : "") + url.hash;
+    const currentRelative =
+      window.location.pathname + window.location.search + window.location.hash;
+    if (newRelative !== currentRelative) {
+      window.history.replaceState({}, "", newRelative);
+    }
+  }
+
+  function openModal(project: Project) {
+    modalUrl = project.links;
+    iframeUrl = getEmbedUrl(project.links);
+    modalTitle = project.title;
+    activeProjectId = project.id;
     showModal = true;
-    isBlockedSite = checkIfBlocked(url);
+    isBlockedSite = checkIfBlocked(iframeUrl);
     isLoading = !isBlockedSite; // Don't show loading if site is blocked
+    copyStatus = "idle";
+    syncUrlWithProject(project.id);
   }
 
   function closeModal() {
     showModal = false;
     modalUrl = "";
+    iframeUrl = "";
+    modalTitle = "";
+    activeProjectId = null;
     isLoading = false;
     isBlockedSite = false;
+    copyStatus = "idle";
+    if (copyResetTimer) {
+      clearTimeout(copyResetTimer);
+      copyResetTimer = null;
+    }
+    syncUrlWithProject(null);
+  }
+
+  async function shareProjectLink() {
+    if (typeof window === "undefined" || activeProjectId === null) return;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${activeProjectId}`;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = shareUrl;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      copyStatus = "copied";
+    } catch {
+      copyStatus = "error";
+    }
+    if (copyResetTimer) clearTimeout(copyResetTimer);
+    copyResetTimer = setTimeout(() => {
+      copyStatus = "idle";
+    }, 2000);
   }
 
   function handleIframeLoad() {
@@ -60,17 +128,39 @@
     closeModal();
   }
 
-  function handleImageLoad(projectId: string) {
+  function markImageResolved(projectId: string) {
     imageLoadingStates[projectId] = false;
     imageLoadingStates = { ...imageLoadingStates };
   }
 
   function handleImageError(projectId: string, event: Event) {
-    imageLoadingStates[projectId] = false;
-    imageLoadingStates = { ...imageLoadingStates };
+    markImageResolved(projectId);
     // Set fallback placeholder image
     const img = event.target as HTMLImageElement;
     img.src = 'https://placehold.co/600x400/e0e7ff/4f46e5?text=Project+Image';
+  }
+
+  // Svelte action: handles the case where the image is already cached when
+  // the element mounts (the load event already fired and the on:load listener
+  // would miss it). Fires the resolve callback immediately if `complete`.
+  function trackImageLoad(node: HTMLImageElement, projectId: string) {
+    const resolve = () => markImageResolved(projectId);
+    if (node.complete && node.naturalWidth !== 0) {
+      // Cached: load already happened before this listener attached.
+      resolve();
+    } else if (node.complete && node.naturalWidth === 0) {
+      // Cached error.
+      handleImageError(projectId, { target: node } as unknown as Event);
+    } else {
+      node.addEventListener("load", resolve);
+      node.addEventListener("error", resolve);
+    }
+    return {
+      destroy() {
+        node.removeEventListener("load", resolve);
+        node.removeEventListener("error", resolve);
+      },
+    };
   }
 
   // Initialize loading states for all projects
@@ -97,18 +187,25 @@
 
     // Sorting
     switch (sortBy) {
+      case "oldest":
+        result.sort(
+          (a, b) =>
+            parseCompletionDate(a.completionDate) -
+            parseCompletionDate(b.completionDate)
+        );
+        break;
       case "a-z":
         result.sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "z-a":
         result.sort((a, b) => b.title.localeCompare(a.title));
         break;
+      case "newest":
       default:
-        // Default: keep date order (most recent first)
         result.sort(
           (a, b) =>
-            new Date(b.completionDate).getTime() -
-            new Date(a.completionDate).getTime()
+            parseCompletionDate(b.completionDate) -
+            parseCompletionDate(a.completionDate)
         );
     }
 
@@ -119,6 +216,22 @@
   // Initialize on mount and sort by most recent
   onMount(() => {
     applyFilters();
+
+    // Open modal from shareable URL (?id=N)
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get("id");
+    if (idParam) {
+      const parsedId = Number(idParam);
+      if (!Number.isNaN(parsedId)) {
+        const project = allProjects.find((p) => p.id === parsedId);
+        if (project) {
+          openModal(project);
+        } else {
+          // Invalid id — clean it from the URL
+          syncUrlWithProject(null);
+        }
+      }
+    }
   });
 
   // React to filter/sort changes
@@ -143,7 +256,35 @@
   // Get unique years from projects and sort them (newest first)
   $: availableYears = [...new Set(allProjects.map(p => p.completionYear))]
     .sort((a, b) => parseInt(b) - parseInt(a));
+
+  // Build category options from projects that actually exist, so empty
+  // categories don't appear in the dropdown.
+  $: availableCategories = (() => {
+    const seen = new Map<string, string>();
+    for (const p of allProjects) {
+      if (!seen.has(p.category)) seen.set(p.category, p.categoryLabel);
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  })();
+
+  $: activeProject = activeProjectId !== null
+    ? allProjects.find((p) => p.id === activeProjectId) ?? null
+    : null;
+  $: pageTitle = activeProject
+    ? `${activeProject.title} — Muhamad Rafli`
+    : "Projects — Muhamad Rafli";
+  $: pageDescription = activeProject
+    ? activeProject.description
+    : "Explore projects by Muhamad Rafli — web apps, AI integrations, UI/UX work, and more.";
 </script>
+
+<svelte:head>
+  <title>{pageTitle}</title>
+  <meta name="description" content={pageDescription} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={pageDescription} />
+</svelte:head>
 
 <div id="webcrumbs">
   <div class="bg-white p-4 sm:p-6 font-sans w-full mx-auto">
@@ -169,12 +310,9 @@
                 bind:value={categoryFilter}
               >
                 <option value="">All Categories</option>
-                <option value="web">Web Development</option>
-                <option value="mobile">Mobile App</option>
-                <option value="ui">UI/UX Design</option>
-                <option value="blockchain">Blockchain</option>
-                <option value="ai">AI/ML</option>
-                <option value="cloud">Cloud Computing</option>
+                {#each availableCategories as cat}
+                  <option value={cat.value}>{cat.label}</option>
+                {/each}
               </select>
               <div
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
@@ -237,6 +375,8 @@
                 class="px-4 w-full bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none hover:border-indigo-300 transition-colors"
                 bind:value={sortBy}
               >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
                 <option value="a-z">A-Z</option>
                 <option value="z-a">Z-A</option>
               </select>
@@ -266,11 +406,11 @@
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 pb-24"
     >
       {#if currentProjects.length > 0}
-        {#each currentProjects as project}
+        {#each currentProjects as project, i (project.id)}
           <div
-            class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group"
+            class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group flex flex-col h-full"
           >
-            <div class="h-48 sm:h-52 md:h-56 overflow-hidden relative bg-gray-100">
+            <div class="h-48 sm:h-52 md:h-56 overflow-hidden relative bg-gray-100 flex-shrink-0">
               {#if imageLoadingStates[project.title]}
                 <!-- Loading skeleton -->
                 <div class="absolute inset-0 flex items-center justify-center bg-gray-100">
@@ -278,45 +418,50 @@
                 </div>
               {/if}
               <img
-                src={project.image}
+                src={getProjectThumbnail(project)}
                 alt={project.title}
+                loading={currentPage === 1 && i === 0 ? "eager" : "lazy"}
+                fetchpriority={currentPage === 1 && i === 0 ? "high" : "auto"}
+                decoding="async"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 {imageLoadingStates[project.title] ? 'opacity-0' : 'opacity-100'}"
-                on:load={() => handleImageLoad(project.title)}
+                use:trackImageLoad={project.title}
                 on:error={(e) => handleImageError(project.title, e)}
               />
               <div
                 class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               ></div>
             </div>
-            <div class="p-4 sm:p-5">
-              <span
-                class="inline-block px-3 py-1 text-xs sm:text-sm {getCategoryColorClasses(
-                  project.categoryColor
-                ).bg} {getCategoryColorClasses(project.categoryColor)
-                  .text} rounded-full mb-2 {getCategoryColorClasses(
-                  project.categoryColor
-                ).hoverBg} transition-colors"
-              >
-                {project.categoryLabel}
-              </span>
+            <div class="p-4 sm:p-5 flex flex-col flex-1">
+              <div class="mb-2">
+                <span
+                  class="inline-block px-3 py-1 text-xs sm:text-sm {getCategoryColorClasses(
+                    project.categoryColor
+                  ).bg} {getCategoryColorClasses(project.categoryColor)
+                    .text} rounded-full {getCategoryColorClasses(
+                    project.categoryColor
+                  ).hoverBg} transition-colors"
+                >
+                  {project.categoryLabel}
+                </span>
+              </div>
               <h3
                 class="text-lg sm:text-xl font-semibold mb-2 group-hover:text-indigo-600 transition-colors"
               >
                 {project.title}
               </h3>
-              <p class="text-gray-600 text-sm sm:text-base mb-4">
+              <p class="text-gray-600 text-sm sm:text-base mb-4 flex-1">
                 {project.description}
               </p>
-              <div class="flex flex-wrap justify-between items-center gap-2">
+              <div class="flex flex-wrap justify-between items-center gap-2 mt-auto">
                 <span class="text-xs sm:text-sm text-gray-500"
                   >Completed: {project.completionDate}</span
                 >
                 <button
                   type="button"
-                  on:click={() => openModal(project.links)}
+                  on:click={() => openModal(project)}
                   class="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md cursor-pointer"
                 >
-                  Live Demo
+                  {getYouTubeId(project.links) ? "Watch Demo" : "Live Demo"}
                 </button>
               </div>
             </div>
@@ -423,9 +568,11 @@
     >
       <!-- Modal Header -->
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; background: linear-gradient(to bottom, #ffffff, #f9fafb);">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
-          <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0;">Live Demo Preview</h3>
+        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981; flex-shrink: 0;"></div>
+          <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {modalTitle ? `${modalTitle} — Live Demo` : "Live Demo Preview"}
+          </h3>
         </div>
         <button
           type="button"
@@ -435,16 +582,30 @@
           style="color: {closeButtonHovered ? '#1f2937' : '#6b7280'}; cursor: pointer; padding: 0.5rem; background: {closeButtonHovered ? '#f3f4f6' : 'transparent'}; border: none; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
           aria-label="Close modal"
         >
-          <span class="material-symbols-outlined" style="font-size: 1.75rem;">close</span>
+          <Icon name="close" size="1.75rem" label="Close" />
         </button>
       </div>
 
       <!-- URL Bar -->
-      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-        <span class="material-symbols-outlined" style="font-size: 1.25rem; color: #6b7280;">lock</span>
-        <div style="flex: 1; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap;">
+        <span style="color: #6b7280; display: inline-flex;"><Icon name="lock" size="1.25rem" label="Secure" /></span>
+        <div style="flex: 1; min-width: 200px; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           {modalUrl}
         </div>
+        <button
+          type="button"
+          on:click={shareProjectLink}
+          on:mouseenter={() => shareButtonHovered = true}
+          on:mouseleave={() => shareButtonHovered = false}
+          style="display: inline-flex; align-items: center; gap: 0.375rem; color: {copyStatus === 'copied' ? '#047857' : copyStatus === 'error' ? '#b91c1c' : '#4f46e5'}; cursor: pointer; padding: 0.5rem 1rem; background: {copyStatus === 'copied' ? '#ecfdf5' : copyStatus === 'error' ? '#fef2f2' : (shareButtonHovered ? '#eef2ff' : 'white')}; border: 1px solid {copyStatus === 'copied' ? '#a7f3d0' : copyStatus === 'error' ? '#fecaca' : '#e0e7ff'}; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
+          aria-label="Copy shareable link"
+        >
+          <Icon
+            name={copyStatus === 'copied' ? 'check' : copyStatus === 'error' ? 'error' : 'share'}
+            size="1.125rem"
+          />
+          {copyStatus === 'copied' ? 'Link Copied!' : copyStatus === 'error' ? 'Copy Failed' : 'Share Link'}
+        </button>
         <button
           type="button"
           on:click={() => window.open(modalUrl, '_blank')}
@@ -463,7 +624,7 @@
           <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; padding: 2rem;">
             <div style="max-width: 32rem; text-align: center;">
               <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #f59e0b;">warning</span>
+                <span style="color: #f59e0b; display: inline-flex;"><Icon name="warning" size="2.5rem" label="Warning" /></span>
               </div>
               <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Can't Display This Page</h3>
               <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
@@ -493,10 +654,11 @@
           {/if}
           <!-- Iframe -->
           <iframe
-            src={modalUrl}
+            src={iframeUrl}
             title="Live Demo"
             style="width: 100%; height: 100%; border: 0; background-color: white;"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
             on:load={handleIframeLoad}
           ></iframe>
         {/if}
