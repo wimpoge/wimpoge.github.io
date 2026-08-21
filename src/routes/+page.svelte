@@ -1,7 +1,6 @@
-<script>
-  import { writable } from "svelte/store";
+<script lang="ts">
   import profile from "$lib/images/profile.jpg";
-  import cv from "$lib/Muhamad Rafli_CV.pdf";
+  import cv from "$lib/Muhamad_Rafli_CV.pdf";
   import Icon from "$lib/Icon.svelte";
   import {
     allProjects,
@@ -11,12 +10,12 @@
     parseCompletionDate,
   } from "$lib/projects-types";
 
-  const menuOpen = writable(false);
+  const EMAIL = "mhmd.rafli.32e@gmail.com";
+
+  let menuOpen = false;
   let showModal = false;
   let modalUrl = "";
   let iframeUrl = "";
-  let closeButtonHovered = false;
-  let openTabButtonHovered = false;
   let isLoading = false;
   let isBlockedSite = false;
 
@@ -29,28 +28,126 @@
     )
     .slice(0, 3);
 
+  const navItems = [
+    { label: "about", href: "#about" },
+    { label: "work", href: "#work" },
+    { label: "experience", href: "#experience" },
+    { label: "skills", href: "#skills" },
+  ];
+
+  const stats = [
+    { value: "2+", label: "years shipping" },
+    { value: String(allProjects.length), label: "projects built" },
+    { value: "8", label: "stacks in use" },
+  ];
+
+  const skillGroups = [
+    {
+      icon: "code",
+      name: "frontend",
+      items: [
+        "HTML/CSS",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "SvelteKit",
+      ],
+    },
+    {
+      icon: "design_services",
+      name: "ui / ux",
+      items: [
+        "Responsive Design",
+        "Tailwind CSS",
+        "Figma",
+        "shadcn/ui",
+        "Aceternity UI",
+        "Bootstrap",
+      ],
+    },
+    {
+      icon: "dns",
+      name: "backend",
+      items: ["Python", "FastAPI", "Node.js", "Express.js", "REST API"],
+    },
+    {
+      icon: "storage",
+      name: "databases",
+      items: ["PostgreSQL", "MySQL", "MongoDB"],
+    },
+    { icon: "smartphone", name: "mobile", items: ["Flutter"] },
+    {
+      icon: "auto_awesome",
+      name: "ai",
+      items: ["OpenAI API", "CrewAI", "Prompt Engineering", "HuggingFace"],
+    },
+    {
+      icon: "cloud",
+      name: "cloud / devops",
+      items: ["AWS EC2", "PM2", "Docker"],
+    },
+    { icon: "build", name: "tooling", items: ["Git/GitHub", "Conda"] },
+  ];
+
+  const socials = [
+    { name: "github", href: "https://github.com/wimpoge", label: "GitHub" },
+    {
+      name: "linkedin",
+      href: "https://www.linkedin.com/in/muhamad-rafli-80a3491b9",
+      label: "LinkedIn",
+    },
+    {
+      name: "instagram",
+      href: "https://www.instagram.com/mhmdrafli.____",
+      label: "Instagram",
+    },
+  ];
+
+  const bercaFullStack = [
+    "Build and maintain REST APIs using Python & FastAPI.",
+    "Design and manage databases with PostgreSQL and MySQL.",
+    "Integrate AI capabilities using OpenAI API, CrewAI, and Prompt Engineering.",
+    "Deploy and manage applications on AWS EC2 with PM2 and Docker.",
+    "Develop cross-platform mobile apps using Flutter.",
+    "Continue building front-end interfaces with React, Next.js, and SvelteKit.",
+  ];
+
+  const bercaFrontEnd = [
+    "Implemented AI models into the front end via REST API and direct integrations.",
+    "Developed UI using Next.js and SvelteKit.",
+    "Built complex applications integrating AI technologies to enhance user experience.",
+  ];
+
+  const semestaItems = [
+    "Developed projects for government agencies.",
+    "Implemented File Extraction feature to extract content from a file.",
+    "Developed Tracking Gmaps Location feature based on Phone Number.",
+    "Created Role Management for specified feature access.",
+    "Implemented Export File pdf and excel features.",
+    "Created Chart Diagram based on available data.",
+  ];
+
+  const gunadarmaItems = [
+    "Responsible for creating online classes and managing student grades.",
+    "Maintained laboratory environment such as computers, networks, CCTV.",
+    "Designed certificates and letters of recommendation for Assistants and Programmers.",
+  ];
+
   // Sites that block iframe embedding (YouTube watch URLs are converted to
   // /embed/ form in getEmbedUrl so they no longer count as blocked).
-  const blockedDomains = ['figma.com', 'notion.so', 'miro.com'];
+  const blockedDomains = ["figma.com", "notion.so", "miro.com"];
 
-  function toggleMenu() {
-    menuOpen.update((value) => !value);
-  }
-
-  function closeMenu() {
-    menuOpen.set(false);
-  }
-
-  function checkIfBlocked(url) {
+  function checkIfBlocked(url: string) {
     try {
       const urlObj = new URL(url);
-      return blockedDomains.some(domain => urlObj.hostname.includes(domain));
+      return blockedDomains.some((domain) => urlObj.hostname.includes(domain));
     } catch {
       return false;
     }
   }
 
-  function openModal(url) {
+  function openModal(url: string) {
     modalUrl = url;
     iframeUrl = getEmbedUrl(url);
     showModal = true;
@@ -71,694 +168,619 @@
   }
 
   function openInNewTab() {
-    window.open(modalUrl, '_blank');
+    window.open(modalUrl, "_blank");
     closeModal();
   }
 
   function downloadCV() {
-    // Create a link element
     const link = document.createElement("a");
-    // Set the href to your imported CV file
     link.href = cv;
-    // Set download attribute with the filename
     link.download = "Muhamad_Rafli_CV.pdf";
-    // Append to the document
     document.body.appendChild(link);
-    // Trigger click
     link.click();
-    // Clean up
     document.body.removeChild(link);
   }
 
-  function handleNavClick(event, sectionId) {
+  function handleNavClick(event: Event, sectionId: string) {
     event.preventDefault();
-    const section = document.querySelector(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
+    document.querySelector(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    menuOpen = false;
+  }
+
+  // Close only when the backdrop itself is clicked, not the dialog contents.
+  function handleBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) closeModal();
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape" && showModal) closeModal();
   }
 </script>
 
-<div id="webcrumbs">
-  <div class="font-sans bg-white overflow-hidden">
-    <header
-      class="relative h-[100px] flex items-center justify-between px-10 border-b border-gray-100 z-20"
-    >
-      <div class="flex items-center">
-        <h1
-          class="text-3xl font-bold tracking-tight hover:tracking-wide transition-all duration-300"
+<svelte:window on:keydown={handleKeydown} />
+
+<div class="min-h-screen bg-bg font-sans text-fg">
+  <header class="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-md">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <a href="#top" class="flex h-full items-center gap-2.5 font-mono text-sm">
+        <span
+          class="grid h-7 w-7 place-items-center border border-line-bright bg-raised text-accent"
+          aria-hidden="true">/</span
         >
-          Muhamad Rafli
-        </h1>
-      </div>
+        <span class="font-bold tracking-tight">muhamad rafli</span>
+      </a>
+
       <nav class="hidden md:block">
-        <ul class="flex space-x-8">
-          {#each ["About", "Projects", "Experience", "Skills"] as item}
+        <ul class="flex items-center gap-8 font-mono text-sm text-dim">
+          {#each navItems as item}
             <li>
               <a
-                href={"#" + item.toLowerCase()}
-                on:click={(e) => handleNavClick(e, "#" + item.toLowerCase())}
-                class="relative text-lg hover:font-medium transition-all duration-200 after:absolute after:w-0 after:h-0.5 after:bg-indigo-500 after:left-0 after:-bottom-1 hover:after:w-full after:transition-all"
+                href={item.href}
+                on:click={(e) => handleNavClick(e, item.href)}
+                class="link-sweep transition-colors hover:text-fg">{item.label}</a
               >
-                {item}
-              </a>
             </li>
           {/each}
         </ul>
       </nav>
-      <button
-      on:click={() => {
-        window.location.href = "mailto:mhmd.rafli.32e@gmail.com"
-      }}
-        class="hidden md:block px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-indigo-200"
-      >
-        Contact Me
-      </button>
-      <button class="md:hidden text-indigo-600" on:click={toggleMenu} aria-label="Toggle menu">
-        <Icon name={$menuOpen ? "close" : "menu"} class="text-3xl" />
-      </button>
-    </header>
 
-    <!-- Mobile Menu -->
-    <div
-      class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:hidden"
-      class:translate-x-0={$menuOpen}
-      class:translate-x-full={!$menuOpen}
-      class:hidden={!$menuOpen}
-    >
-      <ul class="flex flex-col items-start p-6 space-y-4">
-        {#each ["About", "Projects", "Experience", "Skills"] as item}
-          <li>
+      <div class="flex items-center gap-3">
+        <a
+          href="mailto:{EMAIL}"
+          class="hidden border border-accent bg-accent px-4 py-2 font-mono text-sm font-bold text-bg transition-colors hover:bg-transparent hover:text-accent md:inline-block"
+        >
+          contact
+        </a>
+        <button
+          class="-mr-2 grid h-11 w-11 place-items-center text-fg md:hidden"
+          on:click={() => (menuOpen = !menuOpen)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          <Icon name={menuOpen ? "close" : "menu"} size="1.6rem" />
+        </button>
+      </div>
+    </div>
+
+    {#if menuOpen}
+      <div class="border-t border-line bg-surface md:hidden">
+        <ul class="mx-auto max-w-6xl px-5 py-4 font-mono text-sm">
+          {#each navItems as item, i}
+            <li class="border-b border-line last:border-0">
+              <a
+                href={item.href}
+                on:click={(e) => handleNavClick(e, item.href)}
+                class="flex min-h-11 items-center gap-3 py-3.5 text-dim transition-colors hover:text-accent"
+              >
+                <span class="text-faint">{String(i + 1).padStart(2, "0")}</span>
+                {item.label}
+              </a>
+            </li>
+          {/each}
+          <li class="pt-4">
             <a
-              href={"#" + item.toLowerCase()}
-              class="text-lg font-medium text-gray-800 hover:text-indigo-600"
-              on:click={(e) => {
-                handleNavClick(e, "#" + item.toLowerCase());
-                closeMenu();
-              }}
+              href="mailto:{EMAIL}"
+              class="block border border-accent bg-accent px-4 py-2.5 text-center font-bold text-bg"
+              >contact</a
             >
-              {item}
+          </li>
+        </ul>
+      </div>
+    {/if}
+  </header>
+
+  <section id="top" class="relative overflow-hidden border-b border-line">
+    <div class="grid-backdrop absolute inset-0" aria-hidden="true"></div>
+    <div
+      class="pointer-events-none absolute -top-32 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-accent/10 blur-[120px]"
+      aria-hidden="true"
+    ></div>
+
+    <div
+      class="relative mx-auto grid max-w-6xl gap-14 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
+    >
+      <div>
+        <p
+          class="mb-6 inline-flex items-center gap-2 border border-line bg-surface px-3 py-1.5 font-mono text-xs text-dim"
+        >
+          <span class="relative flex h-1.5 w-1.5">
+            <span
+              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"
+            ></span>
+            <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent"></span>
+          </span>
+          available for work — Depok, ID
+        </p>
+
+        <h1 class="text-[2.6rem] leading-[1.05] font-bold tracking-tight sm:text-6xl lg:text-7xl">
+          Full-stack<br />
+          <span class="text-accent">developer</span><br />
+          <span class="text-dim">building for web &amp; mobile.</span>
+        </h1>
+
+        <p class="mt-7 max-w-xl font-mono text-sm leading-relaxed text-dim sm:text-base">
+          <span class="text-accent">&gt;</span> I build responsive, user-friendly
+          applications end to end — from front-end interfaces to REST APIs,
+          databases, and AI integrations.<span class="caret"></span>
+        </p>
+
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          <a
+            href="#work"
+            on:click={(e) => handleNavClick(e, "#work")}
+            class="group inline-flex items-center justify-center gap-2 border border-accent bg-accent px-6 py-3 font-mono text-sm font-bold text-bg transition-colors hover:bg-transparent hover:text-accent"
+          >
+            view work
+            <span class="transition-transform group-hover:translate-x-1">→</span>
+          </a>
+          <button
+            type="button"
+            on:click={downloadCV}
+            class="inline-flex items-center justify-center gap-2 border border-line-bright px-6 py-3 font-mono text-sm text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            download cv
+          </button>
+        </div>
+
+        <div class="mt-9 flex items-center gap-3">
+          {#each socials as social}
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener"
+              aria-label={social.label}
+              class="grid h-11 w-11 place-items-center border border-line text-dim transition-colors hover:border-accent hover:text-accent"
+            >
+              <Icon name={social.name} size="1.1rem" />
             </a>
+          {/each}
+        </div>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-sm lg:mx-0">
+        <div class="relative border border-line bg-surface p-2.5">
+          <span
+            class="absolute -top-px -left-px h-3 w-3 border-t border-l border-accent"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="absolute -top-px -right-px h-3 w-3 border-t border-r border-accent"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="absolute -bottom-px -left-px h-3 w-3 border-b border-l border-accent"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="absolute -right-px -bottom-px h-3 w-3 border-r border-b border-accent"
+            aria-hidden="true"
+          ></span>
+
+          <img
+            src={profile}
+            alt="Muhamad Rafli"
+            width="960"
+            height="1280"
+            fetchpriority="high"
+            decoding="async"
+            class="aspect-[3/4] w-full object-cover brightness-105 contrast-105 saturate-105"
+          />
+        </div>
+
+        <dl class="mt-4 grid grid-cols-3 divide-x divide-line border border-line bg-surface font-mono">
+          {#each stats as stat}
+            <div class="px-3 py-3 text-center">
+              <dt class="sr-only">{stat.label}</dt>
+              <dd>
+                <span class="block text-xl font-bold text-accent">{stat.value}</span>
+                <span class="mt-0.5 block text-[0.65rem] text-faint">{stat.label}</span>
+              </dd>
+            </div>
+          {/each}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="border-b border-line">
+    <div
+      class="mx-auto grid max-w-6xl gap-10 px-5 py-20 sm:px-8 md:py-24 lg:grid-cols-[0.3fr_0.7fr]"
+    >
+      <div>
+        <p class="font-mono text-xs tracking-widest text-faint">01 / ABOUT</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Who I am</h2>
+      </div>
+
+      <div>
+        <p class="text-lg leading-relaxed text-dim">
+          I'm a developer with <span class="text-fg">2+ years of experience</span>
+          specializing in front-end development, recently transitioning into
+          full-stack. I translate design concepts into clean, efficient code that
+          delivers exceptional user experiences.
+        </p>
+        <p class="mt-5 leading-relaxed text-dim">
+          My work has expanded beyond the front end — I now build REST APIs, work
+          with databases, integrate AI capabilities, and deploy applications on
+          cloud infrastructure. I'm constantly learning and experimenting with new
+          technologies to grow as a well-rounded developer.
+        </p>
+
+        <dl class="mt-9 divide-y divide-line border-y border-line font-mono text-sm">
+          <div class="flex flex-col gap-1 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:py-3.5">
+            <dt class="flex items-center gap-2 text-faint sm:w-32">
+              <Icon name="mail" size="1rem" /> email
+            </dt>
+            <dd>
+              <a
+                href="mailto:{EMAIL}"
+                class="link-sweep inline-flex min-h-11 items-center break-all text-fg transition-colors hover:text-accent sm:min-h-0"
+                >{EMAIL}</a
+              >
+            </dd>
+          </div>
+          <div class="flex flex-col gap-1 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:py-3.5">
+            <dt class="flex items-center gap-2 text-faint sm:w-32">
+              <Icon name="location_on" size="1rem" /> location
+            </dt>
+            <dd class="text-fg">Depok, Indonesia</dd>
+          </div>
+          <div class="flex flex-col gap-1 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:py-3.5">
+            <dt class="flex items-center gap-2 text-faint sm:w-32">
+              <Icon name="code" size="1rem" /> focus
+            </dt>
+            <dd class="text-fg">Full-stack · AI integration · Mobile</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="border-b border-line bg-surface/40">
+    <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-24">
+      <div class="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+        <div>
+          <p class="font-mono text-xs tracking-widest text-faint">02 / WORK</p>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            Latest projects
+          </h2>
+        </div>
+        <a
+          href="/projects"
+          class="group inline-flex min-h-11 items-center gap-2 font-mono text-sm text-dim transition-colors hover:text-accent"
+        >
+          view all ({allProjects.length})
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+
+      <ul>
+        {#each featuredProjects as project, i (project.id)}
+          <li class="border-b border-line">
+            <button
+              type="button"
+              on:click={() => openModal(project.links)}
+              class="group flex w-full items-start gap-4 py-5 text-left transition-colors hover:bg-raised/60 sm:items-center sm:gap-8 sm:px-3 sm:py-6"
+            >
+              <span class="mt-0.5 font-mono text-sm text-faint sm:mt-0">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+
+              <img
+                src={getProjectThumbnail(project)}
+                alt=""
+                width="160"
+                height="100"
+                loading="lazy"
+                decoding="async"
+                class="thumb hidden h-16 w-24 shrink-0 border border-line object-cover sm:block"
+              />
+
+              <span class="min-w-0 flex-1">
+                <span
+                  class="block truncate text-base font-semibold transition-colors group-hover:text-accent sm:text-xl"
+                  >{project.title}</span
+                >
+                <span class="mt-1 line-clamp-2 text-sm text-dim sm:line-clamp-1"
+                  >{project.description}</span
+                >
+                <span
+                  class="mt-2.5 flex flex-wrap items-center gap-x-2 font-mono text-xs text-faint sm:hidden"
+                >
+                  <span>{project.categoryLabel}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{project.completionDate}</span>
+                </span>
+              </span>
+
+              <span class="hidden shrink-0 font-mono text-xs text-faint md:block"
+                >{project.categoryLabel}</span
+              >
+              <span class="hidden shrink-0 font-mono text-xs text-faint sm:block"
+                >{project.completionDate}</span
+              >
+              <span
+                class="mt-0.5 shrink-0 font-mono text-sm text-dim transition-all group-hover:translate-x-1 group-hover:text-accent sm:mt-0"
+                aria-hidden="true">→</span
+              >
+              <span class="sr-only"
+                >{getYouTubeId(project.links) ? "Watch demo" : "Open live demo"}</span
+              >
+            </button>
           </li>
         {/each}
       </ul>
     </div>
+  </section>
 
-    <section
-      class="flex flex-col md:flex-row items-center px-6 md:px-10 py-16 md:py-20 bg-gradient-to-r from-gray-50 to-white"
-    >
-      <div class="w-full md:w-1/2 md:pr-10 mb-10 md:mb-0">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-          Full-Stack Developer <span class="text-indigo-600">Building</span> Modern
-          Web & Mobile Experiences
+  <section id="experience" class="border-b border-line">
+    <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-24">
+      <div class="border-b border-line pb-6">
+        <p class="font-mono text-xs tracking-widest text-faint">03 / EXPERIENCE</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+          Where I've worked
         </h2>
-        <p class="text-lg md:text-xl mb-8 text-gray-600">
-          I craft responsive, user-friendly applications from front-end interfaces to back-end systems — with clean code, modern technologies, and a growing passion for AI integration.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <button
-            class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
-            on:click={() =>
-              document
-                .querySelector("#projects")
-                .scrollIntoView({ behavior: "smooth" })}
-          >
-            View Projects
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-300"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-          <button
-            on:click={downloadCV}
-            class="w-full sm:w-auto px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center group"
-          >
-            Download CV
-          </button>
-        </div>
-        <div class="flex space-x-4 mt-8">
-          <a
-            href="https://github.com/wimpoge"
-            target="_blank"
-            rel="noopener"
-            aria-label="GitHub"
-            class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
-          >
-            <Icon name="github" class="text-xl" />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/muhamad-rafli-80a3491b9"
-            target="_blank"
-            rel="noopener"
-            aria-label="LinkedIn"
-            class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
-          >
-            <Icon name="linkedin" class="text-xl" />
-          </a>
-          <a
-            href="https://www.instagram.com/mhmdrafli.____"
-            target="_blank"
-            rel="noopener"
-            aria-label="Instagram"
-            class="h-10 w-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300"
-          >
-            <Icon name="instagram" class="text-xl" />
-          </a>
-        </div>
       </div>
-      <div class="w-full md:w-1/2 flex justify-center">
-        <div
-          class="relative w-[250px] h-[250px] md:w-[350px] md:h-[350px] rounded-full bg-indigo-100 overflow-hidden shadow-xl transform hover:scale-105 transition-all duration-500"
-        >
-          <div
-            class="absolute inset-0 bg-gradient-to-br from-indigo-200 to-transparent opacity-50"
-          ></div>
-          <img
-            src={profile}
-            alt="Profile"
-            class="object-cover w-full h-full"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </div>
-      </div>
-    </section>
 
-    <section id="about" class="px-6 md:px-10 py-16 md:py-20">
-      <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">Who I Am</h2>
-        <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
-      </div>
-      <div class="flex flex-col md:flex-row items-center gap-10 md:gap-20">
-        <div class="w-full md:w-1/2">
-          <img
-            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80"
-            alt="Developer coding"
-            loading="lazy"
-            decoding="async"
-            class="rounded-lg shadow-xl w-full h-[300px] md:h-[400px] object-cover transform hover:scale-105 transition-all duration-500"
-          />
-        </div>
-        <div class="w-full md:w-1/2 mt-8 md:mt-0">
-          <h3 class="text-2xl font-semibold mb-4">Who I Am</h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
-            I'm a passionate developer with 2+ years of experience specializing
-            in front-end development, recently transitioning into full-stack
-            development. I specialize in translating design concepts into clean,
-            efficient code that delivers exceptional user experiences.
-          </p>
-          <p class="text-gray-600 mb-8 leading-relaxed">
-            My journey has expanded beyond the front-end — I'm now building REST
-            APIs, working with databases, integrating AI capabilities, and
-            deploying applications on cloud infrastructure. I'm constantly
-            learning and experimenting with new technologies to grow as a
-            well-rounded developer.
-          </p>
-          <div class="flex flex-wrap gap-4">
-            <div class="flex items-center">
-              <Icon name="mail" class="text-indigo-600 mr-3" />
-              <span>muhamad.rafli.32e@gmail.com</span>
-            </div>
+      <ol class="mt-10 space-y-12 border-l border-line pl-6 sm:pl-10">
+        <li class="relative">
+          <span
+            class="absolute top-2 -left-[1.72rem] h-2 w-2 bg-accent sm:-left-[2.72rem]"
+            aria-hidden="true"
+          ></span>
+          <p class="font-mono text-xs text-accent">2024 — present</p>
+          <p class="mt-2 text-xl font-semibold">PT. Berca Hardayaperkasa</p>
 
-            <div class="flex items-center">
-              <Icon name="location_on" class="text-indigo-600 mr-3" />
-              <span>Depok, Indonesia</span>
+          <div class="mt-6 border-l border-line pl-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 class="text-lg font-semibold">Full-Stack Developer</h3>
+              <span class="font-mono text-xs text-faint">Feb 2026 — present</span>
             </div>
+            <p class="mt-2 text-sm text-dim">
+              Promoted to Full-Stack Developer, expanding responsibilities beyond
+              the front end to cover the full application stack.
+            </p>
+            <ul class="mt-3 space-y-1.5 text-sm text-dim">
+              {#each bercaFullStack as item}
+                <li class="flex gap-2.5">
+                  <span class="text-accent" aria-hidden="true">▸</span>{item}
+                </li>
+              {/each}
+            </ul>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <section id="projects" class="px-6 md:px-10 py-16 md:py-20 bg-gray-50">
-      <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">My Latest Projects</h2>
-        <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
-        <p class="mt-6 text-gray-600 text-center max-w-2xl">
-          A look at what I've been building most recently — showcasing my skills
-          and expertise in fullstack development.
-        </p>
+          <div class="mt-6 border-l border-line pl-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 class="text-lg font-semibold">Front-End Developer</h3>
+              <span class="font-mono text-xs text-faint">2024 — Jan 2026</span>
+            </div>
+            <p class="mt-2 text-sm text-dim">
+              Joined a leading IT consultant company in Indonesia, building
+              front-end interfaces and AI-integrated applications.
+            </p>
+            <ul class="mt-3 space-y-1.5 text-sm text-dim">
+              {#each bercaFrontEnd as item}
+                <li class="flex gap-2.5">
+                  <span class="text-accent" aria-hidden="true">▸</span>{item}
+                </li>
+              {/each}
+            </ul>
+          </div>
+        </li>
+
+        <li class="relative">
+          <span
+            class="absolute top-2 -left-[1.72rem] h-2 w-2 bg-line-bright sm:-left-[2.72rem]"
+            aria-hidden="true"
+          ></span>
+          <p class="font-mono text-xs text-dim">2023 — 2024</p>
+          <p class="mt-2 text-xl font-semibold">PT. Semesta Arus Teknologi</p>
+          <h3 class="mt-1 text-base text-dim">Front-End Developer</h3>
+          <p class="mt-3 text-sm text-dim">
+            My first professional career as a front-end developer using SvelteKit.
+          </p>
+          <ul class="mt-3 space-y-1.5 text-sm text-dim">
+            {#each semestaItems as item}
+              <li class="flex gap-2.5">
+                <span class="text-faint" aria-hidden="true">▸</span>{item}
+              </li>
+            {/each}
+          </ul>
+        </li>
+
+        <li class="relative">
+          <span
+            class="absolute top-2 -left-[1.72rem] h-2 w-2 bg-line-bright sm:-left-[2.72rem]"
+            aria-hidden="true"
+          ></span>
+          <p class="font-mono text-xs text-dim">2020 — 2022</p>
+          <p class="mt-2 text-xl font-semibold">University of Gunadarma</p>
+          <h3 class="mt-1 text-base text-dim">Psychology Laboratory Programmer</h3>
+          <p class="mt-3 text-sm text-dim">
+            The starting point of becoming a programmer: joining as a developer in
+            one of the faculties using Visual Basic and JavaScript.
+          </p>
+          <ul class="mt-3 space-y-1.5 text-sm text-dim">
+            {#each gunadarmaItems as item}
+              <li class="flex gap-2.5">
+                <span class="text-faint" aria-hidden="true">▸</span>{item}
+              </li>
+            {/each}
+          </ul>
+        </li>
+
+        <li class="relative">
+          <span
+            class="absolute top-2 -left-[1.72rem] h-2 w-2 bg-line-bright sm:-left-[2.72rem]"
+            aria-hidden="true"
+          ></span>
+          <p class="font-mono text-xs text-dim">2017 · 3 months</p>
+          <p class="mt-2 text-xl font-semibold">PT. Sewiwi Indonesia</p>
+          <h3 class="mt-1 text-base text-dim">Internship</h3>
+          <p class="mt-3 text-sm text-dim">
+            Started my career working in IT Networking.
+          </p>
+          <ul class="mt-3 space-y-1.5 text-sm text-dim">
+            <li class="flex gap-2.5">
+              <span class="text-faint" aria-hidden="true">▸</span>Configured
+              networks using Mikrotik.
+            </li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="skills" class="border-b border-line bg-surface/40">
+    <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-24">
+      <div class="border-b border-line pb-6">
+        <p class="font-mono text-xs tracking-widest text-faint">04 / SKILLS</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+          Tools I build with
+        </h2>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {#each featuredProjects as project (project.id)}
-          <div
-            class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex flex-col"
-            style="height: 100%;"
-          >
-            <div class="h-[200px] overflow-hidden bg-gray-100">
-              <img
-                src={getProjectThumbnail(project)}
-                alt={project.title}
-                loading="lazy"
-                decoding="async"
-                class="w-full h-full object-cover hover:scale-110 transition-all duration-500"
-              />
-            </div>
-            <div class="p-6 flex flex-col" style="flex: 1 1 0%;">
-              <div class="mb-2">
+
+      <dl class="divide-y divide-line">
+        {#each skillGroups as group}
+          <div class="grid gap-4 py-6 md:grid-cols-[0.28fr_0.72fr] md:items-start">
+            <dt class="flex items-center gap-3 font-mono text-sm text-dim">
+              <span class="text-accent"><Icon name={group.icon} size="1.1rem" /></span>
+              {group.name}
+            </dt>
+            <dd class="flex flex-wrap gap-2">
+              {#each group.items as item}
                 <span
-                  class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium"
+                  class="border border-line bg-raised px-2.5 py-1 font-mono text-xs text-dim transition-colors hover:border-accent hover:text-accent"
+                  >{item}</span
                 >
-                  {project.categoryLabel}
-                </span>
-              </div>
-              <h3 class="text-xl font-semibold mb-2">{project.title}</h3>
-              <p class="text-gray-600 mb-4" style="flex: 1 1 0%;">
-                {project.description}
-              </p>
-              <div
-                class="flex justify-between items-center"
-                style="margin-top: auto;"
-              >
-                <span class="text-sm text-gray-500">
-                  {project.completionDate}
-                </span>
-                <button
-                  type="button"
-                  on:click={() => openModal(project.links)}
-                  class="text-indigo-600 font-medium hover:text-indigo-800 transition-colors cursor-pointer bg-transparent border-0 p-0 text-left"
-                >
-                  {getYouTubeId(project.links) ? "Watch Demo" : "Live Demo"}
-                </button>
-              </div>
-            </div>
+              {/each}
+            </dd>
           </div>
         {/each}
-      </div>
-      <div class="flex justify-center mt-12">
-        <button
-          on:click={() => (window.location.href = "/projects")}
-          class="px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-600 hover:text-white transition-all duration-300 flex items-center font-medium"
-        >
-          View All Projects
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 ml-2"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+      </dl>
+    </div>
+  </section>
+
+  <footer class="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+    <div class="border border-line bg-surface p-6 text-center sm:p-10 md:p-14">
+      <p class="font-mono text-xs tracking-widest text-faint">05 / CONTACT</p>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        Let's build something.
+      </h2>
+      <p class="mx-auto mt-4 max-w-md text-dim">
+        Open to full-stack roles and freelance work. The fastest way to reach me
+        is email.
+      </p>
+      <a
+        href="mailto:{EMAIL}"
+        class="mt-8 inline-flex w-full max-w-full items-center justify-center gap-2.5 border border-accent bg-accent px-4 py-3.5 font-mono text-[0.7rem] font-bold break-words text-bg transition-colors hover:bg-transparent hover:text-accent xs:text-xs sm:w-auto sm:px-6 sm:py-3 sm:text-sm"
+      >
+        <Icon name="mail" size="1.1rem" />
+        {EMAIL}
+      </a>
+    </div>
+
+    <div
+      class="mt-8 flex flex-col items-center justify-between gap-4 font-mono text-xs text-faint sm:flex-row"
+    >
+      <p>© {new Date().getFullYear()} Muhamad Rafli</p>
+      <div class="flex items-center gap-5">
+        {#each socials as social}
+          <a
+            href={social.href}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-11 items-center transition-colors hover:text-accent"
+            >{social.name}</a
           >
-            <path
-              fillRule="evenodd"
-              d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+        {/each}
       </div>
-    </section>
-
-    <section id="experience" class="px-6 md:px-10 py-16 md:py-20">
-      <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">Work Experience</h2>
-        <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
-        <p class="mt-6 text-gray-600 text-center max-w-2xl">
-          My professional journey and the companies I've collaborated with.
-        </p>
-      </div>
-      <div class="max-w-4xl mx-auto relative">
-        <div
-          class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gray-200"
-        ></div>
-
-        <div class="relative mb-16">
-          <div class="flex items-center justify-center">
-            <div class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"></div>
-          </div>
-          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
-            <div class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10">
-              2024 - Present
-            </div>
-          </div>
-          <div class="mt-8 mx-auto bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(75%)]">
-            <p class="text-indigo-600 font-semibold text-lg mb-5">PT. Berca Hardayaperkasa</p>
-
-            <div class="mb-6 pb-6 border-b border-gray-100">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-semibold">Full-Stack Developer</h3>
-                <span class="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Feb 2026 - Present</span>
-              </div>
-              <p class="text-gray-600 mb-3">
-                Promoted to Full-Stack Developer, expanding responsibilities beyond the front end to cover the full application stack.
-              </p>
-              <ul class="list-disc list-inside text-gray-600 space-y-1">
-                <li>Build and maintain REST APIs using Python & FastAPI.</li>
-                <li>Design and manage databases with PostgreSQL and MySQL.</li>
-                <li>Integrate AI capabilities using OpenAI API, CrewAI, and Prompt Engineering.</li>
-                <li>Deploy and manage applications on AWS EC2 with PM2 and Docker.</li>
-                <li>Develop cross-platform mobile apps using Flutter.</li>
-                <li>Continue building front-end interfaces with React, Next.js, and SvelteKit.</li>
-              </ul>
-            </div>
-
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-semibold">Front-End Developer</h3>
-                <span class="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">2024 - Jan 2026</span>
-              </div>
-              <p class="text-gray-600 mb-3">
-                Joined a leading IT consultant company in Indonesia, building front-end interfaces and AI-integrated applications.
-              </p>
-              <ul class="list-disc list-inside text-gray-600 space-y-1">
-                <li>Implemented AI models into the front end via REST API and direct integrations.</li>
-                <li>Developed UI using Next.js and SvelteKit.</li>
-                <li>Built complex applications integrating AI technologies to enhance user experience.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="relative mb-16">
-          <div class="flex items-center justify-center">
-            <div class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"></div>
-          </div>
-          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20">
-            <div class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10">
-              2023 - 2024
-            </div>
-          </div>
-          <div class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]">
-            <h3 class="text-xl font-semibold mb-2">Front-End Developer</h3>
-            <p class="text-indigo-600 mb-4">PT. Semesta Arus Teknologi</p>
-            <p class="text-gray-600 mb-4">
-              My first professional career as a front-end developer using SvelteKit.
-            </p>
-            <ul class="list-disc list-inside text-gray-600 space-y-1">
-              <li>Developed projects for government agencies.</li>
-              <li>Implemented File Extraction feature to extract content from a file.</li>
-              <li>Developed Tracking Gmaps Location feature based on Phone Number.</li>
-              <li>Created Role Management for specified feature access.</li>
-              <li>Implemented Export File pdf and excel features.</li>
-              <li>Created Chart Diagram based on available data.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="relative mb-16">
-          <div class="flex items-center justify-center">
-            <div
-              class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"
-            ></div>
-          </div>
-          <div
-            class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20"
-          >
-            <div
-              class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10"
-            >
-              2020 - 2022
-            </div>
-          </div>
-          <div
-            class="mt-8 md:mt-6 md:ml-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)] md:relative md:left-1/2"
-          >
-            <h3 class="text-xl font-semibold mb-2">
-              Psychology Laboratory Programmer
-            </h3>
-            <p class="text-indigo-600 mb-4">University of Gunadarma</p>
-            <p class="text-gray-600 mb-4">
-              The starting point of becoming a programmer: joining as a
-              developer in one of the faculties using Visual Basic and
-              JavaScript.
-            </p>
-            <ul class="list-disc list-inside text-gray-600 space-y-1">
-              <li>
-                Responsible for creating online classes and managing student
-                grades.
-              </li>
-              <li>
-                Maintained laboratory environment such as computers, networks,
-                CCTV.
-              </li>
-              <li>
-                Designed certificates and letters of recommendation for
-                Assistants and Programmers.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="relative">
-          <div class="flex items-center justify-center">
-            <div
-              class="w-6 h-6 rounded-full bg-indigo-600 z-10 shadow-md"
-            ></div>
-          </div>
-          <div
-            class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-20"
-          >
-            <div
-              class="bg-indigo-100 text-indigo-800 px-4 py-1 rounded-full text-sm font-medium -mt-10"
-            >
-              2017 (3 Month)
-            </div>
-          </div>
-          <div
-            class="mt-8 md:mt-6 md:mr-8 bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-[calc(50%-32px)]"
-          >
-            <h3 class="text-xl font-semibold mb-2">Internship</h3>
-            <p class="text-indigo-600 mb-4">PT. Sewiwi Indonesia</p>
-            <p class="text-gray-600 mb-4">
-              Started my career working in IT Networking.
-            </p>
-            <ul class="list-disc list-inside text-gray-600 space-y-1">
-              <li>Configured networks using Mikrotik.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="skills" class="px-6 md:px-10 py-16 md:py-20 bg-gray-50">
-      <div class="flex flex-col items-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-3">Skills & Expertise</h2>
-        <div class="h-1 w-20 bg-indigo-600 rounded-full"></div>
-        <p class="mt-6 text-gray-600 text-center max-w-2xl">
-          The technologies and tools I use to bring projects to life.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-
-        <!-- Frontend -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="code" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Frontend</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["HTML/CSS", "JavaScript", "TypeScript", "React", "Next.js", "Sveltekit"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- UI/UX & Design -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="design_services" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">UI/UX & Design</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["Responsive Design", "Tailwind CSS", "Figma", "shadcn/ui", "Aceternity UI", "Bootstrap"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Backend -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="dns" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Backend</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["Python", "FastAPI", "Node.js", "Express.js", "REST API"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Databases -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="storage" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Databases</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["PostgreSQL", "MySQL", "MongoDB"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Mobile -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="smartphone" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Mobile</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["Flutter"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- AI & Integrations -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="auto_awesome" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">AI & Integrations</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["OpenAI API", "CrewAI", "Prompt Engineering", "HuggingFace"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Cloud & DevOps -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="cloud" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Cloud & DevOps</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["AWS EC2", "PM2", "Docker"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Dev Tools -->
-        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-          <div class="flex items-center gap-4 mb-6">
-            <div class="h-16 w-16 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-              <Icon name="build" class="text-indigo-600 text-3xl" />
-            </div>
-            <h3 class="text-xl font-semibold">Dev Tools</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {#each ["Git/GitHub", "Conda"] as skill}
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-black">{skill}</span>
-            {/each}
-          </div>
-        </div>
-
-      </div>
-    </section>
-  </div>
+    </div>
+  </footer>
 </div>
 
-<!-- Modal - Outside main container to avoid overflow-hidden issues -->
 {#if showModal}
   <div
-    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1.5rem; animation: fadeIn 0.2s ease-out; backdrop-filter: blur(4px);"
-    on:click={closeModal}
+    class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 p-3 backdrop-blur-sm sm:p-6"
+    style="animation: fadeIn 0.2s ease-out;"
+    on:click={handleBackdropClick}
+    on:keydown={handleKeydown}
     role="dialog"
     aria-modal="true"
+    aria-label="Live demo preview"
+    tabindex="-1"
   >
     <div
-      style="background-color: white; border-radius: 1rem; width: 100%; max-width: 80rem; height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: slideUp 0.3s ease-out; overflow: hidden;"
-      on:click|stopPropagation
-      role="document"
+      class="flex h-[92dvh] max-h-[92dvh] w-full max-w-6xl flex-col border border-line-bright bg-surface shadow-2xl"
+      style="animation: slideUp 0.3s ease-out;"
     >
-      <!-- Modal Header -->
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; background: linear-gradient(to bottom, #ffffff, #f9fafb);">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981;"></div>
-          <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin: 0;">Live Demo Preview</h3>
+      <div class="flex items-center justify-between border-b border-line px-4 py-3">
+        <div class="flex items-center gap-2.5 font-mono text-sm">
+          <span class="h-2.5 w-2.5 rounded-full bg-accent"></span>
+          <span class="text-dim">live demo preview</span>
         </div>
         <button
           type="button"
           on:click={closeModal}
-          on:mouseenter={() => closeButtonHovered = true}
-          on:mouseleave={() => closeButtonHovered = false}
-          style="color: {closeButtonHovered ? '#1f2937' : '#6b7280'}; cursor: pointer; padding: 0.5rem; background: {closeButtonHovered ? '#f3f4f6' : 'transparent'}; border: none; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+          class="p-1.5 text-dim transition-colors hover:text-accent"
           aria-label="Close modal"
         >
-          <Icon name="close" size="1.75rem" />
+          <Icon name="close" size="1.5rem" />
         </button>
       </div>
 
-      <!-- URL Bar -->
-      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-        <span style="color: #6b7280; display: inline-flex;"><Icon name="lock" size="1.25rem" label="Secure" /></span>
-        <div style="flex: 1; background-color: white; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+      <div class="flex items-center gap-3 border-b border-line bg-raised px-4 py-2.5">
+        <span class="text-faint"><Icon name="lock" size="1rem" label="Secure" /></span>
+        <div
+          class="flex-1 truncate border border-line bg-bg px-3 py-1.5 font-mono text-xs text-dim"
+        >
           {modalUrl}
         </div>
         <button
           type="button"
-          on:click={() => window.open(modalUrl, '_blank')}
-          on:mouseenter={() => openTabButtonHovered = true}
-          on:mouseleave={() => openTabButtonHovered = false}
-          style="color: #4f46e5; cursor: pointer; padding: 0.5rem 1rem; background: {openTabButtonHovered ? '#eef2ff' : 'white'}; border: 1px solid #e0e7ff; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
+          on:click={() => window.open(modalUrl, "_blank")}
+          class="min-h-10 shrink-0 border border-line-bright px-3 py-2 font-mono text-xs text-dim transition-colors hover:border-accent hover:text-accent"
         >
-          Open in New Tab
+          open in new tab
         </button>
       </div>
 
-      <!-- Modal Body - Iframe or Blocked Message -->
-      <div style="flex: 1; overflow: hidden; background-color: #f3f4f6; position: relative;">
+      <div class="relative flex-1 overflow-hidden bg-bg">
         {#if isBlockedSite}
-          <!-- Blocked Site Message -->
-          <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; padding: 2rem;">
-            <div style="max-width: 32rem; text-align: center;">
-              <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <span style="color: #f59e0b; display: inline-flex;"><Icon name="warning" size="2.5rem" label="Warning" /></span>
-              </div>
-              <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Can't Display This Page</h3>
-              <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-                For security reasons, this website doesn't allow embedding in iframes. This is common for platforms like Figma, Notion, and others.
-              </p>
-              <p style="color: #4b5563; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem; padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
-                <strong>Solution:</strong> Please open this link in a new browser tab to view the content.
-              </p>
-              <button
-                type="button"
-                on:click={openInNewTab}
-                style="padding: 0.75rem 2rem; background-color: #4f46e5; color: white; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
-                on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
-                on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
-              >
-                Open in New Tab
-              </button>
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+            <div class="grid h-16 w-16 place-items-center border border-amber/40 text-amber">
+              <Icon name="warning" size="2rem" label="Warning" />
             </div>
+            <h3 class="mt-5 text-xl font-bold">Can't display this page</h3>
+            <p class="mt-3 max-w-md text-sm leading-relaxed text-dim">
+              For security reasons, this website doesn't allow embedding in
+              iframes. This is common for platforms like Figma, Notion, and
+              others.
+            </p>
+            <p
+              class="mt-5 max-w-md border-l-2 border-amber bg-raised p-3.5 text-left text-xs leading-relaxed text-dim"
+            >
+              <strong class="text-fg">Solution:</strong> open this link in a new browser
+              tab to view the content.
+            </p>
+            <button
+              type="button"
+              on:click={openInNewTab}
+              class="mt-7 border border-accent bg-accent px-6 py-2.5 font-mono text-sm font-bold text-bg transition-colors hover:bg-transparent hover:text-accent"
+            >
+              open in new tab
+            </button>
           </div>
         {:else}
-          <!-- Loading Indicator -->
           {#if isLoading}
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: white; z-index: 10;">
+            <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-bg">
               <div class="spinner"></div>
-              <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Loading demo...</p>
+              <p class="mt-4 font-mono text-xs text-faint">loading demo…</p>
             </div>
           {/if}
-          <!-- Iframe -->
           <iframe
             src={iframeUrl}
             title="Live Demo"
-            style="width: 100%; height: 100%; border: 0; background-color: white;"
+            class="h-full w-full border-0 bg-white"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
             on:load={handleIframeLoad}
@@ -768,43 +790,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #e0e7ff;
-    border-top: 4px solid #4f46e5;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-</style>

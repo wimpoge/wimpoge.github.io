@@ -102,7 +102,7 @@ export const allProjects: Project[] = [
         title: "Advanced Prompting Anime Assistant",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "An interactive Gradio application demonstrating various AI prompting techniques using OpenAI's GPT-3.5 model to answer anime-related questions.",
         completionDate: "Apr 2025",
         completionYear: "2025",
@@ -114,7 +114,7 @@ export const allProjects: Project[] = [
         title: "Image Classification Using CNN",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "contains code for a CNN-based image classification model that categorizes images into six classes: buildings, forest, glacier, mountain, sea, and street.",
         completionDate: "May 2025",
         completionYear: "2025",
@@ -126,7 +126,7 @@ export const allProjects: Project[] = [
         title: "Retrieval-Augmented Generation PDF QnA",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "A simple Retrieval-Augmented Generation (RAG) application for answering questions about PDF documents.",
         completionDate: "Apr 2025",
         completionYear: "2025",
@@ -138,7 +138,7 @@ export const allProjects: Project[] = [
         title: "Agentic OpenAI Get Weather",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "This project is a Python-based agentic AI assistant leveraging OpenAI's GPT models.",
         completionDate: "May 2025",
         completionYear: "2025",
@@ -150,7 +150,7 @@ export const allProjects: Project[] = [
         title: "Visual AI Learning",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "This roadmap is for people who want to become an AI engineer but have never written an LLM line of code before — the absolute beginner. It is not a reference manual. It is a guided tour where every abstract concept has a button you can click and watch happen.",
         completionDate: "May 2026",
         completionYear: "2026",
@@ -162,7 +162,7 @@ export const allProjects: Project[] = [
         title: "NeuralPath",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "A comprehensive, interactive learning app for mastering AI Engineering concepts based on the complete roadmap.sh/ai-engineer curriculum.",
         completionDate: "Jun 2025",
         completionYear: "2025",
@@ -174,7 +174,7 @@ export const allProjects: Project[] = [
         title: "CrewAI Market Analysis",
         category: "ai",
         categoryLabel: "AI/ML",
-        categoryColor: "gray",
+        categoryColor: "violet",
         description: "An AI-powered market research and analysis tool built with CrewAI that provides comprehensive insights into emerging technology markets, specifically focused on AI healthcare solutions.",
         completionDate: "Jun 2025",
         completionYear: "2025",
@@ -184,13 +184,14 @@ export const allProjects: Project[] = [
 ];
 
 export function getCategoryColorClasses(color: string) {
+    // Dark-theme chips: translucent fill + matching border, one hue per category.
     const colorMap: Record<string, { bg: string, text: string, hoverBg: string }> = {
-        blue: { bg: "bg-blue-100", text: "text-blue-800", hoverBg: "hover:bg-blue-200" },
-        gray: { bg: "bg-gray-100", text: "text-gray-800", hoverBg: "hover:bg-gray-200" },
-        purple: { bg: "bg-purple-100", text: "text-purple-800", hoverBg: "hover:bg-purple-200" },
-        yellow: { bg: "bg-yellow-100", text: "text-yellow-800", hoverBg: "hover:bg-yellow-200" },
-        red: { bg: "bg-red-100", text: "text-red-800", hoverBg: "hover:bg-red-200" },
-        green: { bg: "bg-green-100", text: "text-green-800", hoverBg: "hover:bg-green-200" },
+        yellow: { bg: "bg-amber/10 border-amber/30", text: "text-amber", hoverBg: "group-hover:bg-amber/20" },
+        blue: { bg: "bg-cyan/10 border-cyan/30", text: "text-cyan", hoverBg: "group-hover:bg-cyan/20" },
+        violet: { bg: "bg-violet/10 border-violet/30", text: "text-violet", hoverBg: "group-hover:bg-violet/20" },
+        rose: { bg: "bg-rose/10 border-rose/30", text: "text-rose", hoverBg: "group-hover:bg-rose/20" },
+        green: { bg: "bg-accent/10 border-accent/30", text: "text-accent", hoverBg: "group-hover:bg-accent/20" },
+        gray: { bg: "bg-raised border-line-bright", text: "text-dim", hoverBg: "group-hover:bg-line" },
     };
 
     return colorMap[color] || colorMap.gray;
