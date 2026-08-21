@@ -197,6 +197,26 @@
   }
 </script>
 
+<svelte:head>
+  <title>Muhamad Rafli — Full-Stack Developer</title>
+  <meta
+    name="description"
+    content="Portfolio of Muhamad Rafli, a Full-Stack Developer based in Depok, Indonesia, building modern web and mobile experiences with React, SvelteKit, Next.js, Python/FastAPI, Flutter, and AI integrations."
+  />
+  <link rel="canonical" href="https://wimpoge.github.io/" />
+  <meta property="og:url" content="https://wimpoge.github.io/" />
+  <meta property="og:title" content="Muhamad Rafli — Full-Stack Developer" />
+  <meta
+    property="og:description"
+    content="Full-Stack Developer building modern web and mobile experiences with React, SvelteKit, Python/FastAPI, Flutter, and AI integrations."
+  />
+  <meta name="twitter:title" content="Muhamad Rafli — Full-Stack Developer" />
+  <meta
+    name="twitter:description"
+    content="Full-Stack Developer building modern web and mobile experiences with React, SvelteKit, Python/FastAPI, Flutter, and AI integrations."
+  />
+</svelte:head>
+
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="min-h-screen bg-bg font-sans text-fg">

@@ -301,6 +301,10 @@
   <meta name="description" content={pageDescription} />
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
+  <link rel="canonical" href="https://wimpoge.github.io/projects" />
+  <meta property="og:url" content="https://wimpoge.github.io/projects" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={pageDescription} />
 </svelte:head>
 
 <svelte:window on:keydown={handleKeydown} />
