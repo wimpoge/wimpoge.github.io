@@ -190,7 +190,7 @@ export const allProjects: Project[] = [
         description: "A full-stack ERP covering sales, purchasing, inventory and finance with role-based access, built with Next.js, FastAPI and PostgreSQL.",
         completionDate: "Oct 2026",
         completionYear: "2026",
-        image: "",
+        image: "/projects/erp.png",
         links: "https://erp-otw7.vercel.app"
       },
 ];
