@@ -180,7 +180,19 @@ export const allProjects: Project[] = [
         completionYear: "2025",
         image: "",
         links: "https://www.youtube.com/watch?v=VxKNHLvpkCM"
-      },   
+      },
+      {
+        id: 15,
+        title: "ERP System",
+        category: "web",
+        categoryLabel: "Web Development",
+        categoryColor: "yellow",
+        description: "A full-stack ERP covering sales, purchasing, inventory and finance with role-based access, built with Next.js, FastAPI and PostgreSQL.",
+        completionDate: "Oct 2026",
+        completionYear: "2026",
+        image: "",
+        links: "https://erp-otw7.vercel.app"
+      },
 ];
 
 export function getCategoryColorClasses(color: string) {
