@@ -202,7 +202,7 @@ export const allProjects: Project[] = [
         description: "A point-of-sale app for retail cashiers, integrated with the ERP: barcode scanning, split payments, shift management and offline-safe order sync, built with Next.js and FastAPI.",
         completionDate: "Oct 2026",
         completionYear: "2026",
-        image: "",
+        image: "/projects/pos.png",
         links: "https://pos-ten-phi.vercel.app"
       },
 ];
