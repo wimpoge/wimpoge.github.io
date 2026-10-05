@@ -193,6 +193,18 @@ export const allProjects: Project[] = [
         image: "/projects/erp.png",
         links: "https://erp-otw7.vercel.app"
       },
+      {
+        id: 16,
+        title: "POS System",
+        category: "web",
+        categoryLabel: "Web Development",
+        categoryColor: "yellow",
+        description: "A point-of-sale app for retail cashiers, integrated with the ERP: barcode scanning, split payments, shift management and offline-safe order sync, built with Next.js and FastAPI.",
+        completionDate: "Oct 2026",
+        completionYear: "2026",
+        image: "",
+        links: "https://pos-ten-phi.vercel.app"
+      },
 ];
 
 export function getCategoryColorClasses(color: string) {
